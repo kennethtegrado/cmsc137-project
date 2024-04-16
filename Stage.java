@@ -12,7 +12,12 @@ public class Stage extends JFrame implements KeyListener {
     private int bulletX;
     private int bulletY;
     private Timer timer;
-
+    private Image up = Toolkit.getDefaultToolkit().getImage("tank-up.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
+    private Image down = Toolkit.getDefaultToolkit().getImage("tank-down.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
+    private Image left = Toolkit.getDefaultToolkit().getImage("tank-left.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
+    private Image right = Toolkit.getDefaultToolkit().getImage("tank-right.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
+    private Image position = up;
+    
     public Stage() {
         setTitle("Tank Battle Game");
         setSize(400, 400); //size of the window
@@ -45,11 +50,11 @@ public class Stage extends JFrame implements KeyListener {
     }
 
     private void drawTank(Graphics g) {
-        g.drawString("T", tankX, tankY); //draw the tank 
+        g.drawImage(position, tankX, tankY, this); //draw the tank 
     }
 
     private void drawBullet(Graphics g) {
-        g.drawString(".", bulletX, bulletY); //draw the bullet
+        g.drawString("|", bulletX, bulletY); //draw the bullet
     }
 
     @Override
@@ -61,10 +66,26 @@ public class Stage extends JFrame implements KeyListener {
         if (keyCode == KeyEvent.VK_SPACE && !bulletFired) {
             // Spacebar pressed and bullet not already fired, fire bullet
             bulletFired = true;
-            bulletX = tankX + 10; //move bullet, not yet working
-            bulletY = tankY - 10;
+            bulletX = tankX + 2; //move bullet, not yet working
+            bulletY = tankY - 15;
             repaint(); //redraw the panel to display the bullet
             timer.start(); //start the timer to control bullet firing rate
+        } else if (keyCode == KeyEvent.VK_W) {
+            tankY = tankY - 1;
+            position = up;
+            repaint();
+        } else if (keyCode == KeyEvent.VK_S) {
+            tankY = tankY + 1;
+            position = down;
+            repaint();
+        } else if (keyCode == KeyEvent.VK_A) {
+            tankX = tankX - 1;
+            position = left;
+            repaint();
+        } else if (keyCode == KeyEvent.VK_D) {
+            tankX = tankX + 1;
+            position = right;
+            repaint();
         }
     }
 
