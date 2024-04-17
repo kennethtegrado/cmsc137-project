@@ -12,15 +12,16 @@ public class Stage extends JFrame implements KeyListener {
     private int bulletX;
     private int bulletY;
     private Timer timer;
-    private Image up = Toolkit.getDefaultToolkit().getImage("tank-up.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
-    private Image down = Toolkit.getDefaultToolkit().getImage("tank-down.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
-    private Image left = Toolkit.getDefaultToolkit().getImage("tank-left.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
-    private Image right = Toolkit.getDefaultToolkit().getImage("tank-right.png").getScaledInstance(50, 50, DO_NOTHING_ON_CLOSE);
+    private Image backgroundImage = Toolkit.getDefaultToolkit().getImage("sample-stage.png");
+    private Image up = Toolkit.getDefaultToolkit().getImage("tank-up.png").getScaledInstance(30, 30, DO_NOTHING_ON_CLOSE);
+    private Image down = Toolkit.getDefaultToolkit().getImage("tank-down.png").getScaledInstance(30, 30, DO_NOTHING_ON_CLOSE);
+    private Image left = Toolkit.getDefaultToolkit().getImage("tank-left.png").getScaledInstance(30, 30, DO_NOTHING_ON_CLOSE);
+    private Image right = Toolkit.getDefaultToolkit().getImage("tank-right.png").getScaledInstance(30, 30, DO_NOTHING_ON_CLOSE);
     private Image position = up;
     
     public Stage() {
         setTitle("Tank Battle Game");
-        setSize(400, 400); //size of the window
+        setSize(1215, 750); //size of the window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 
         //create a panel to contain the components
@@ -28,12 +29,14 @@ public class Stage extends JFrame implements KeyListener {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, this);
                 drawTank(g);
                 if (bulletFired) {
                     drawBullet(g);
                 }
             }
         };
+        panel.setBackground(Color.BLACK);
         getContentPane().add(panel);
 
         addKeyListener(this); //register the key listener
@@ -71,19 +74,27 @@ public class Stage extends JFrame implements KeyListener {
             repaint(); //redraw the panel to display the bullet
             timer.start(); //start the timer to control bullet firing rate
         } else if (keyCode == KeyEvent.VK_W) {
-            tankY = tankY - 1;
+            if (tankY - 1 > 25) {
+                tankY = tankY - 1;
+            }
             position = up;
             repaint();
         } else if (keyCode == KeyEvent.VK_S) {
-            tankY = tankY + 1;
+            if (tankY + 1 < 645) {
+                tankY = tankY + 1;
+            }
             position = down;
             repaint();
         } else if (keyCode == KeyEvent.VK_A) {
-            tankX = tankX - 1;
+            if (tankX - 1 > 25) {
+                tankX = tankX - 1;
+            }
             position = left;
             repaint();
         } else if (keyCode == KeyEvent.VK_D) {
-            tankX = tankX + 1;
+            if (tankX + 1 < 795) {
+                tankX = tankX + 1;
+            }
             position = right;
             repaint();
         }
