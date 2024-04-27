@@ -30,7 +30,6 @@ import java.util.ArrayList;
 class GameTimer extends AnimationTimer{
 	private GraphicsContext gc;
 	private Player player;
-	private Player player1;
 	private ArrayList<Bullet> bullet;
 	private ArrayList<Wall> wall;
 	private String currentFacing;
@@ -56,13 +55,10 @@ class GameTimer extends AnimationTimer{
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
 		this.scene.setFill(Color.BLACK);
 		this.player = new Player("Tank");
-		this.player1 = new Player("yey");
 		this.bullet = new ArrayList<Bullet>();
 		this.wall = new ArrayList<Wall>();
 		this.currentFacing = "up";
 		this.prepareActionHandlers();
-		this.player1.setXPos(600);
-		this.player1.setYPos(100);
 		this.initializeMap();
 	}
 
@@ -71,7 +67,6 @@ class GameTimer extends AnimationTimer{
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
 		this.renderMap();
 		this.player.render(this.gc);
-		this.player1.render(this.gc);
 		this.movePlayer();
 		this.checkWallCollision();
 		for (Bullet fire: this.bullet) {
@@ -82,9 +77,9 @@ class GameTimer extends AnimationTimer{
 	void initializeMap() {
 		boolean isAlternateX = true;
 		boolean isAlternateY = true;
-		for (int i=100; i < 1090; i = i + 45) {
+		for (int i=102; i < 1090; i = i + 45) {
 			if (isAlternateX) {
-				for (int j=92; j < 708; j = j + 45) {
+				for (int j=94; j < 708; j = j + 45) {
 					if (isAlternateY) {
 						Wall newWall = new Wall(i, j);
 						this.wall.add(newWall);
@@ -97,26 +92,66 @@ class GameTimer extends AnimationTimer{
 	}
 
 	void renderMap() {
-		for (Wall wall: this.wall) {
-			wall.render(this.gc);
+		for (int i = 0; i < this.wall.size(); i++) {
+			Wall wall = this.wall.get(i);
+			if (wall.getHealth() > 0) {
+				wall.render(this.gc);
+			} else {
+				this.wall.remove(i);
+			}
 		}
 	}
 
 	void checkWallCollision() {
 		for (Wall wall: this.wall) {
-			if (wall.collidesWith(this.player)) {
-				if (currentFacing == "up") {
+			if (currentFacing == "up") {
+				boolean hasCollisionX = (this.player.getXPos() >= wall.getXPos() 
+																&& this.player.getXPos() <= wall.getXPos()+40)
+																|| (this.player.getXPos()+40 >= wall.getXPos()
+																&& this.player.getXPos()+40 <= wall.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos() <= wall.getYPos()+40
+																&& this.player.getYPos()+40 > wall.getYPos()+40);
+				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goUp = false;
-					//this.player.setYPos(this.player.getYPos()-1);
-				} else if (currentFacing == "down") {
+				}
+			} else if (currentFacing == "down") {
+				boolean hasCollisionX = (this.player.getXPos() > wall.getXPos() 
+																&& this.player.getXPos() < wall.getXPos()+40)
+																|| (this.player.getXPos()+40 > wall.getXPos()
+																&& this.player.getXPos()+40 < wall.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos()+40 >= wall.getYPos()
+																&& this.player.getYPos() < wall.getYPos());
+				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goDown = false;
-					//this.player.setYPos(this.player.getYPos()+1);
-				} else if (currentFacing == "left") {
+				}
+			} else if (currentFacing == "left") {
+				boolean hasCollisionY = (this.player.getYPos() >= wall.getYPos() 
+																&& this.player.getYPos() <= wall.getYPos()+40)
+																|| (this.player.getYPos()+40 >= wall.getYPos()
+																&& this.player.getYPos()+40 <= wall.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos() <= wall.getXPos()+40
+																&& this.player.getXPos()+40 > wall.getXPos()+40);
+				if (hasCollisionX && hasCollisionY) {
 					GameTimer.goLeft = false;
-					//this.player.setYPos(this.player.getXPos()-1);
-				} else if (currentFacing == "right") {
+				}
+			} else if (currentFacing == "right") {
+				boolean hasCollisionY = (this.player.getYPos() > wall.getYPos() 
+																&& this.player.getYPos() < wall.getYPos()+40)
+																|| (this.player.getYPos()+40 > wall.getYPos()
+																&& this.player.getYPos()+40 < wall.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos()+40 >= wall.getXPos()
+																&& this.player.getXPos() < wall.getXPos());
+				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goRight = false;
-					//this.player.setYPos(this.player.getXPos()+1);
+				}
+			}
+
+			for (int i = 0; i < this.bullet.size(); i++) {
+				Bullet bullet = this.bullet.get(i);
+				if (wall.collidesWith(bullet)) {
+					this.bullet.remove(i);
+					wall.setHealth();
+					break;
 				}
 			}
 		}
@@ -172,52 +207,27 @@ class GameTimer extends AnimationTimer{
 
 	private void movePlayer() {		// method for controlling the player
 		if (GameTimer.goLeft) {
-			//if (!this.player.collidesWith(this.player1)) {
-				if (this.player.getXPos() <= 1088 && this.player.getXPos() > 60) {
-					this.player.setXPos(this.player.getXPos() - 0.5);
-				}
-			// } else {
-			// 	while (this.player.collidesWith(this.player1)) {
-			// 		this.player.setXPos(this.player.getXPos() + 1);
-			// 	}
-			// }
+			if (this.player.getXPos() <= 1088 && this.player.getXPos() > 60) {
+				this.player.setXPos(this.player.getXPos() - 0.5);
+			}
 			this.player.loadImage(left);
 			currentFacing = "left";
 		} else if (GameTimer.goRight) {
-			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getXPos() < 1088 && this.player.getXPos() >= 60) {
 					this.player.setXPos(this.player.getXPos() + 0.5);
 				}
-			// } else {
-			// 	while (this.player.collidesWith(this.player1)) {
-			// 		this.player.setXPos(this.player.getXPos() - 1);
-			// 		this.player.setXPos(this.player.getXPos() - 1);
-			// 	}
-			// }
 			this.player.loadImage(right);
 			currentFacing = "right";
 		} else if (GameTimer.goUp) {
-			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getYPos() <= 708 && this.player.getYPos() > 52) {
 					this.player.setYPos(this.player.getYPos() - 0.5);
 				}
-			// } else {
-			// 	while (this.player.collidesWith(this.player1)) {
-			// 		this.player.setYPos(this.player.getYPos() + 1);
-			// 	}
-			// }
 			this.player.loadImage(up);
 			currentFacing = "up";
 		} else if (GameTimer.goDown) {
-			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getYPos() < 708 && this.player.getYPos() >= 52) {
 					this.player.setYPos(this.player.getYPos() + 0.5);
 				}
-			// } else {
-			// 	while (this.player.collidesWith(this.player1)) {
-			// 		this.player.setYPos(this.player.getYPos() - 1);
-			// 	}
-			// }
 			this.player.loadImage(down);
 			currentFacing = "down";
 		}

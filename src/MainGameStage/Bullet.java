@@ -53,4 +53,8 @@ public class Bullet {
   void render(GraphicsContext gc) {
 		gc.drawImage(this.bullet, this.xPos, this.yPos);
 	}
+
+  public Rectangle2D getBounds(){
+		return new Rectangle2D(this.xPos - this.bullet.getHeight()/2 - 15, this.yPos - this.bullet.getHeight()/2 - 15, this.bullet.getWidth(), this.bullet.getHeight());
+	}
 }
