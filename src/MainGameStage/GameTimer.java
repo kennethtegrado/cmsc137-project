@@ -33,6 +33,7 @@ class GameTimer extends AnimationTimer{
 	private ArrayList<Bullet> bullet;
 	private ArrayList<Wall> wall;
 	private ArrayList<Bush> bush;
+	private ArrayList<Water> water;
 	private String currentFacing;
 	private Scene scene;
 
@@ -59,6 +60,7 @@ class GameTimer extends AnimationTimer{
 		this.bullet = new ArrayList<Bullet>();
 		this.wall = new ArrayList<Wall>();
 		this.bush = new ArrayList<Bush>();
+		this.water = new ArrayList<Water>();
 		this.currentFacing = "up";
 		this.prepareActionHandlers();
 		this.initializeMap();
@@ -70,7 +72,7 @@ class GameTimer extends AnimationTimer{
 		this.player.render(this.gc);
 		this.movePlayer();
 		this.renderMap();
-		this.checkWallCollision();
+		this.checkCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
 		}
@@ -85,6 +87,9 @@ class GameTimer extends AnimationTimer{
 					if (isAlternateY) {
 						Wall newWall = new Wall(i, j);
 						this.wall.add(newWall);
+					} else {
+						Water newWater = new Water(i, j);
+						this.water.add(newWater);
 					}
 					isAlternateY = !isAlternateY;
 				}
@@ -111,9 +116,13 @@ class GameTimer extends AnimationTimer{
 		for (Bush bush: this.bush) {
 			bush.render(this.gc);
 		}
+
+		for (Water water: this.water) {
+			water.render(this.gc);
+		}
 	}
 
-	void checkWallCollision() {
+	void checkCollision() {
 		for (Wall wall: this.wall) {
 			if (currentFacing == "up") {
 				boolean hasCollisionX = (this.player.getXPos() >= wall.getXPos() 
@@ -163,6 +172,50 @@ class GameTimer extends AnimationTimer{
 					this.bullet.remove(i);
 					wall.setHealth();
 					break;
+				}
+			}
+		}
+
+		for (Water water: this.water) {
+			if (currentFacing == "up") {
+				boolean hasCollisionX = (this.player.getXPos() >= water.getXPos() 
+																&& this.player.getXPos() <= water.getXPos()+40)
+																|| (this.player.getXPos()+40 >= water.getXPos()
+																&& this.player.getXPos()+40 <= water.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos() <= water.getYPos()+40
+																&& this.player.getYPos()+40 > water.getYPos()+40);
+				if (hasCollisionY && hasCollisionX) {
+					GameTimer.goUp = false;
+				}
+			} else if (currentFacing == "down") {
+				boolean hasCollisionX = (this.player.getXPos() > water.getXPos() 
+																&& this.player.getXPos() < water.getXPos()+40)
+																|| (this.player.getXPos()+40 > water.getXPos()
+																&& this.player.getXPos()+40 < water.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos()+40 >= water.getYPos()
+																&& this.player.getYPos() < water.getYPos());
+				if (hasCollisionY && hasCollisionX) {
+					GameTimer.goDown = false;
+				}
+			} else if (currentFacing == "left") {
+				boolean hasCollisionY = (this.player.getYPos() >= water.getYPos() 
+																&& this.player.getYPos() <= water.getYPos()+40)
+																|| (this.player.getYPos()+40 >= water.getYPos()
+																&& this.player.getYPos()+40 <= water.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos() <= water.getXPos()+40
+																&& this.player.getXPos()+40 > water.getXPos()+40);
+				if (hasCollisionX && hasCollisionY) {
+					GameTimer.goLeft = false;
+				}
+			} else if (currentFacing == "right") {
+				boolean hasCollisionY = (this.player.getYPos() > water.getYPos() 
+																&& this.player.getYPos() < water.getYPos()+40)
+																|| (this.player.getYPos()+40 > water.getYPos()
+																&& this.player.getYPos()+40 < water.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos()+40 >= water.getXPos()
+																&& this.player.getXPos() < water.getXPos());
+				if (hasCollisionY && hasCollisionX) {
+					GameTimer.goRight = false;
 				}
 			}
 		}
