@@ -32,6 +32,7 @@ class GameTimer extends AnimationTimer{
 	private Player player;
 	private ArrayList<Bullet> bullet;
 	private ArrayList<Wall> wall;
+	private ArrayList<Bush> bush;
 	private String currentFacing;
 	private Scene scene;
 
@@ -57,6 +58,7 @@ class GameTimer extends AnimationTimer{
 		this.player = new Player("Tank");
 		this.bullet = new ArrayList<Bullet>();
 		this.wall = new ArrayList<Wall>();
+		this.bush = new ArrayList<Bush>();
 		this.currentFacing = "up";
 		this.prepareActionHandlers();
 		this.initializeMap();
@@ -65,9 +67,9 @@ class GameTimer extends AnimationTimer{
 	@Override
 	public void handle(long currentNanoTime) {
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
-		this.renderMap();
 		this.player.render(this.gc);
 		this.movePlayer();
+		this.renderMap();
 		this.checkWallCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
@@ -77,14 +79,19 @@ class GameTimer extends AnimationTimer{
 	void initializeMap() {
 		boolean isAlternateX = true;
 		boolean isAlternateY = true;
-		for (int i=102; i < 1090; i = i + 45) {
+		for (int i=102; i < 1090; i = i + 44) {
 			if (isAlternateX) {
-				for (int j=94; j < 708; j = j + 45) {
+				for (int j=94; j < 708; j = j + 44) {
 					if (isAlternateY) {
 						Wall newWall = new Wall(i, j);
 						this.wall.add(newWall);
 					}
 					isAlternateY = !isAlternateY;
+				}
+			} else {
+				for (int j=94; j < 708; j = j + 44) {
+					Bush newBush = new Bush(i, j);
+					this.bush.add(newBush);
 				}
 			}
 			isAlternateX = !isAlternateX;
@@ -99,6 +106,10 @@ class GameTimer extends AnimationTimer{
 			} else {
 				this.wall.remove(i);
 			}
+		}
+
+		for (Bush bush: this.bush) {
+			bush.render(this.gc);
 		}
 	}
 

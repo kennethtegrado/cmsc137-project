@@ -18,7 +18,7 @@ class Player {
 	private String name;
 	private double xPos;
 	private double yPos;
-	private Image player = new Image("images/tank-up.png", 40, 40, false, false);
+	private Image player = new Image("images/tank-up.png", 35, 35, false, false);
 	private final static double INITIAL_X = 60;
 	private final static double INITIAL_Y = 52;
 
