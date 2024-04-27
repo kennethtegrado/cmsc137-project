@@ -17,7 +17,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 //import javafx.scene.text.Font;
 //import javafx.scene.text.FontWeight;
@@ -26,7 +25,6 @@ import javafx.util.Duration;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 //import java.util.Random;
 
 class GameTimer extends AnimationTimer{
@@ -34,6 +32,7 @@ class GameTimer extends AnimationTimer{
 	private Player player;
 	private Player player1;
 	private ArrayList<Bullet> bullet;
+	private ArrayList<Wall> wall;
 	private String currentFacing;
 	private Scene scene;
 
@@ -59,20 +58,67 @@ class GameTimer extends AnimationTimer{
 		this.player = new Player("Tank");
 		this.player1 = new Player("yey");
 		this.bullet = new ArrayList<Bullet>();
+		this.wall = new ArrayList<Wall>();
 		this.currentFacing = "up";
 		this.prepareActionHandlers();
 		this.player1.setXPos(600);
 		this.player1.setYPos(100);
+		this.initializeMap();
 	}
 
 	@Override
 	public void handle(long currentNanoTime) {
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
+		this.renderMap();
 		this.player.render(this.gc);
 		this.player1.render(this.gc);
 		this.movePlayer();
+		this.checkWallCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
+		}
+	}
+
+	void initializeMap() {
+		boolean isAlternateX = true;
+		boolean isAlternateY = true;
+		for (int i=100; i < 1090; i = i + 45) {
+			if (isAlternateX) {
+				for (int j=92; j < 708; j = j + 45) {
+					if (isAlternateY) {
+						Wall newWall = new Wall(i, j);
+						this.wall.add(newWall);
+					}
+					isAlternateY = !isAlternateY;
+				}
+			}
+			isAlternateX = !isAlternateX;
+		}
+	}
+
+	void renderMap() {
+		for (Wall wall: this.wall) {
+			wall.render(this.gc);
+		}
+	}
+
+	void checkWallCollision() {
+		for (Wall wall: this.wall) {
+			if (wall.collidesWith(this.player)) {
+				if (currentFacing == "up") {
+					GameTimer.goUp = false;
+					//this.player.setYPos(this.player.getYPos()-1);
+				} else if (currentFacing == "down") {
+					GameTimer.goDown = false;
+					//this.player.setYPos(this.player.getYPos()+1);
+				} else if (currentFacing == "left") {
+					GameTimer.goLeft = false;
+					//this.player.setYPos(this.player.getXPos()-1);
+				} else if (currentFacing == "right") {
+					GameTimer.goRight = false;
+					//this.player.setYPos(this.player.getXPos()+1);
+				}
+			}
 		}
 	}
 
@@ -126,52 +172,52 @@ class GameTimer extends AnimationTimer{
 
 	private void movePlayer() {		// method for controlling the player
 		if (GameTimer.goLeft) {
-			if (!this.player.collidesWith(this.player1)) {
+			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getXPos() <= 1088 && this.player.getXPos() > 60) {
-					this.player.setXPos(this.player.getXPos() - 2);
+					this.player.setXPos(this.player.getXPos() - 0.5);
 				}
-			} else {
-				while (this.player.collidesWith(this.player1)) {
-					this.player.setXPos(this.player.getXPos() + 1);
-				}
-			}
+			// } else {
+			// 	while (this.player.collidesWith(this.player1)) {
+			// 		this.player.setXPos(this.player.getXPos() + 1);
+			// 	}
+			// }
 			this.player.loadImage(left);
 			currentFacing = "left";
 		} else if (GameTimer.goRight) {
-			if (!this.player.collidesWith(this.player1)) {
+			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getXPos() < 1088 && this.player.getXPos() >= 60) {
-					this.player.setXPos(this.player.getXPos() + 2);
+					this.player.setXPos(this.player.getXPos() + 0.5);
 				}
-			} else {
-				while (this.player.collidesWith(this.player1)) {
-					this.player.setXPos(this.player.getXPos() - 1);
-					this.player.setXPos(this.player.getXPos() - 1);
-				}
-			}
+			// } else {
+			// 	while (this.player.collidesWith(this.player1)) {
+			// 		this.player.setXPos(this.player.getXPos() - 1);
+			// 		this.player.setXPos(this.player.getXPos() - 1);
+			// 	}
+			// }
 			this.player.loadImage(right);
 			currentFacing = "right";
 		} else if (GameTimer.goUp) {
-			if (!this.player.collidesWith(this.player1)) {
+			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getYPos() <= 708 && this.player.getYPos() > 52) {
-					this.player.setYPos(this.player.getYPos() - 2);
+					this.player.setYPos(this.player.getYPos() - 0.5);
 				}
-			} else {
-				while (this.player.collidesWith(this.player1)) {
-					this.player.setYPos(this.player.getYPos() + 1);
-				}
-			}
+			// } else {
+			// 	while (this.player.collidesWith(this.player1)) {
+			// 		this.player.setYPos(this.player.getYPos() + 1);
+			// 	}
+			// }
 			this.player.loadImage(up);
 			currentFacing = "up";
 		} else if (GameTimer.goDown) {
-			if (!this.player.collidesWith(this.player1)) {
+			//if (!this.player.collidesWith(this.player1)) {
 				if (this.player.getYPos() < 708 && this.player.getYPos() >= 52) {
-					this.player.setYPos(this.player.getYPos() + 2);
+					this.player.setYPos(this.player.getYPos() + 0.5);
 				}
-			} else {
-				while (this.player.collidesWith(this.player1)) {
-					this.player.setYPos(this.player.getYPos() - 1);
-				}
-			}
+			// } else {
+			// 	while (this.player.collidesWith(this.player1)) {
+			// 		this.player.setYPos(this.player.getYPos() - 1);
+			// 	}
+			// }
 			this.player.loadImage(down);
 			currentFacing = "down";
 		}
@@ -210,25 +256,25 @@ class GameTimer extends AnimationTimer{
 	private void moveBullet(Bullet fire) {
 		if (fire.getDirection() == "up") {
 			if (fire.getYPos() > 52) {
-				fire.setYPos(fire.getYPos()-10);
+				fire.setYPos(fire.getYPos()-5);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "down") {
 			if (fire.getYPos() < 750) {
-				fire.setYPos(fire.getYPos()+10);
+				fire.setYPos(fire.getYPos()+5);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "left") {
 			if (fire.getXPos() > 60) {
-				fire.setXPos(fire.getXPos()-10);
+				fire.setXPos(fire.getXPos()-5);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "right") {
 			if (fire.getXPos() < 1130) {
-				fire.setXPos(fire.getXPos()+10);
+				fire.setXPos(fire.getXPos()+5);
 			} else {
 				fire.setVisible(false);
 			}

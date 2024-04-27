@@ -60,14 +60,14 @@ class Player {
 		gc.drawImage(this.player, this.xPos, this.yPos);
 	}
 
-	private Rectangle2D getBounds(){
+	public Rectangle2D getBounds(){
 		return new Rectangle2D(this.xPos - this.player.getHeight()/2, this.yPos - this.player.getHeight()/2, this.player.getWidth(), this.player.getHeight());
 	}
 
 	protected boolean collidesWith(Player rect2)	{
 		Rectangle2D rectangle1 = this.getBounds();
 		Rectangle2D rectangle2 = rect2.getBounds();
-		
+
 		return rectangle1.intersects(rectangle2);
 	}
 }
