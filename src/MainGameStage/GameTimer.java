@@ -34,6 +34,7 @@ class GameTimer extends AnimationTimer{
 	private ArrayList<Wall> wall;
 	private ArrayList<Bush> bush;
 	private ArrayList<Water> water;
+	private ArrayList<Metal> metal;
 	private String currentFacing;
 	private Scene scene;
 
@@ -61,6 +62,7 @@ class GameTimer extends AnimationTimer{
 		this.wall = new ArrayList<Wall>();
 		this.bush = new ArrayList<Bush>();
 		this.water = new ArrayList<Water>();
+		this.metal = new ArrayList<Metal>();
 		this.currentFacing = "up";
 		this.prepareActionHandlers();
 		this.initializeMap();
@@ -72,7 +74,9 @@ class GameTimer extends AnimationTimer{
 		this.player.render(this.gc);
 		this.movePlayer();
 		this.renderMap();
-		this.checkCollision();
+		this.checkWaterCollision();
+		this.checkWallCollision();
+		this.checkMetalCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
 		}
@@ -81,6 +85,7 @@ class GameTimer extends AnimationTimer{
 	void initializeMap() {
 		boolean isAlternateX = true;
 		boolean isAlternateY = true;
+		int a = 0;
 		for (int i=102; i < 1090; i = i + 44) {
 			if (isAlternateX) {
 				for (int j=94; j < 708; j = j + 44) {
@@ -88,8 +93,15 @@ class GameTimer extends AnimationTimer{
 						Wall newWall = new Wall(i, j);
 						this.wall.add(newWall);
 					} else {
-						Water newWater = new Water(i, j);
-						this.water.add(newWater);
+						if (a == 1) {
+							Water newWater = new Water(i, j);
+							this.water.add(newWater);
+							a = 0;
+						} else {
+							Metal newMetal = new Metal(i, j);
+							this.metal.add(newMetal);
+							a = 1;
+						}
 					}
 					isAlternateY = !isAlternateY;
 				}
@@ -120,9 +132,13 @@ class GameTimer extends AnimationTimer{
 		for (Water water: this.water) {
 			water.render(this.gc);
 		}
+
+		for (Metal metal: this.metal) {
+			metal.render(this.gc);
+		}
 	}
 
-	void checkCollision() {
+	void checkWallCollision() {
 		for (Wall wall: this.wall) {
 			if (currentFacing == "up") {
 				boolean hasCollisionX = (this.player.getXPos() >= wall.getXPos() 
@@ -175,7 +191,9 @@ class GameTimer extends AnimationTimer{
 				}
 			}
 		}
+	}
 
+	void checkWaterCollision() {
 		for (Water water: this.water) {
 			if (currentFacing == "up") {
 				boolean hasCollisionX = (this.player.getXPos() >= water.getXPos() 
@@ -216,6 +234,60 @@ class GameTimer extends AnimationTimer{
 																&& this.player.getXPos() < water.getXPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goRight = false;
+				}
+			}
+		}
+	}
+
+	void checkMetalCollision() {
+		for (Metal metal: this.metal) {
+			if (currentFacing == "up") {
+				boolean hasCollisionX = (this.player.getXPos() >= metal.getXPos() 
+																&& this.player.getXPos() <= metal.getXPos()+40)
+																|| (this.player.getXPos()+40 >= metal.getXPos()
+																&& this.player.getXPos()+40 <= metal.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos() <= metal.getYPos()+40
+																&& this.player.getYPos()+40 > metal.getYPos()+40);
+				if (hasCollisionY && hasCollisionX) {
+					GameTimer.goUp = false;
+				}
+			} else if (currentFacing == "down") {
+				boolean hasCollisionX = (this.player.getXPos() > metal.getXPos() 
+																&& this.player.getXPos() < metal.getXPos()+40)
+																|| (this.player.getXPos()+40 > metal.getXPos()
+																&& this.player.getXPos()+40 < metal.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos()+40 >= metal.getYPos()
+																&& this.player.getYPos() < metal.getYPos());
+				if (hasCollisionY && hasCollisionX) {
+					GameTimer.goDown = false;
+				}
+			} else if (currentFacing == "left") {
+				boolean hasCollisionY = (this.player.getYPos() >= metal.getYPos() 
+																&& this.player.getYPos() <= metal.getYPos()+40)
+																|| (this.player.getYPos()+40 >= metal.getYPos()
+																&& this.player.getYPos()+40 <= metal.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos() <= metal.getXPos()+40
+																&& this.player.getXPos()+40 > metal.getXPos()+40);
+				if (hasCollisionX && hasCollisionY) {
+					GameTimer.goLeft = false;
+				}
+			} else if (currentFacing == "right") {
+				boolean hasCollisionY = (this.player.getYPos() > metal.getYPos() 
+																&& this.player.getYPos() < metal.getYPos()+40)
+																|| (this.player.getYPos()+40 > metal.getYPos()
+																&& this.player.getYPos()+40 < metal.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos()+40 >= metal.getXPos()
+																&& this.player.getXPos() < metal.getXPos());
+				if (hasCollisionY && hasCollisionX) {
+					GameTimer.goRight = false;
+				}
+			}
+
+			for (int i = 0; i < this.bullet.size(); i++) {
+				Bullet bullet = this.bullet.get(i);
+				if (metal.collidesWith(bullet)) {
+					this.bullet.remove(i);
+					break;
 				}
 			}
 		}
