@@ -17,6 +17,8 @@
 
 package MainGameStage;
 
+import com.sun.prism.paint.Color;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -28,6 +30,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -36,7 +40,7 @@ public class Game {
 	private Stage stage;
 	private Scene splashScene;		// the splash scene
 	private Scene gameScene;		// the game scene
-	private Group root;
+	private StackPane root;
 	private Canvas canvas;			// the canvas where the animation happens
 
 	public final static int WINDOW_WIDTH = 1500;
@@ -44,9 +48,16 @@ public class Game {
 
 	public Game(){
 		this.canvas = new Canvas( Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT );
-		this.root = new Group();
-        this.root.getChildren().add( this.canvas );
-        this.gameScene = new Scene( root );
+        ChatApp chat = new ChatApp();
+        this.root = new StackPane();
+        VBox chatBox = chat.createContent();
+        chatBox.setPadding(new Insets(0, 64, 0, 64));
+
+        StackPane.setAlignment(this.canvas, Pos.CENTER);
+        StackPane.setAlignment(chatBox, Pos.BOTTOM_RIGHT);
+
+        this.root.getChildren().addAll(this.canvas, chatBox);
+        this.gameScene = new Scene( this.root );
 	}
 
 	public void setStage(Stage stage) {
@@ -109,7 +120,6 @@ public class Game {
         stage.setScene( this.gameScene );
 
         GraphicsContext gc = this.canvas.getGraphicsContext2D();	// we will pass this gc to be able to draw on this Game's canvas
-
         GameTimer gameTimer = new GameTimer(this.gameScene, gc);
         gameTimer.start();			// this internally calls the handle() method of our GameTimer
 	}

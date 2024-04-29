@@ -18,14 +18,16 @@ class Player {
 	private String name;
 	private double xPos;
 	private double yPos;
-	private Image player = new Image("images/tank-up.png", 35, 35, false, false);
-	private final static double INITIAL_X = 60;
-	private final static double INITIAL_Y = 52;
+	private double speed;
+	private Image player = new Image("images/tank-up.png", 40, 40, false, false);
+	private final static double INITIAL_X = 55;
+	private final static double INITIAL_Y = 50;
 
 	Player (String name){
 		this.name = name;
 		this.xPos = INITIAL_X;
 		this.yPos = INITIAL_Y;
+		this.speed = 0.5;
 	}
 
 	String getName(){
@@ -50,6 +52,14 @@ class Player {
 	
 	void setYPos(double newYPos) {
 		this.yPos = newYPos;
+	}
+
+	double getSpeed() {
+		return this.speed;
+	}
+
+	void setSpeed(double newSpeed) {
+		this.speed = newSpeed;
 	}
 
 	void loadImage(Image newImage) {

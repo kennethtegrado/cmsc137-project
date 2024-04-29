@@ -35,7 +35,9 @@ class GameTimer extends AnimationTimer{
 	private ArrayList<Bush> bush;
 	private ArrayList<Water> water;
 	private ArrayList<Metal> metal;
+	private ArrayList<Steel> steel;
 	private String currentFacing;
+	private ChatApp chat;
 	private Scene scene;
 
 	private static boolean goLeft;
@@ -44,7 +46,10 @@ class GameTimer extends AnimationTimer{
 	private static boolean goDown;
 	private static boolean fireBullet;
 
-	public final static int SHOOT_DELAY = 1;
+	public final static int START_MAP_WIDTH = 55;
+	public final static int START_MAP_HEIGHT = 50;
+	public final static int END_MAP_WIDTH = 1165;
+	public final static int END_MAP_HEIGHT = 740;
 
 	private final static Image GAME_BG = new Image("images/gameBg.png");	
 	private Image up = new Image("images/tank-up.png", 40, 40, false, false);
@@ -63,20 +68,29 @@ class GameTimer extends AnimationTimer{
 		this.bush = new ArrayList<Bush>();
 		this.water = new ArrayList<Water>();
 		this.metal = new ArrayList<Metal>();
+		this.steel = new ArrayList<Steel>();
+		this.chat = new ChatApp();
 		this.currentFacing = "up";
 		this.prepareActionHandlers();
 		this.initializeMap();
+		//this.chat.createContent();
 	}
 
 	@Override
 	public void handle(long currentNanoTime) {
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
 		this.player.render(this.gc);
+
+		for (Steel steel: this.steel) {
+			steel.render(this.gc);
+		}
+		
 		this.movePlayer();
-		this.renderMap();
-		this.checkWaterCollision();
-		this.checkWallCollision();
-		this.checkMetalCollision();
+		//this.renderMap();
+		//this.checkWaterCollision();
+		//this.checkWallCollision();
+		//this.checkMetalCollision();
+		//this.checkSteelCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
 		}
@@ -86,9 +100,16 @@ class GameTimer extends AnimationTimer{
 		boolean isAlternateX = true;
 		boolean isAlternateY = true;
 		int a = 0;
-		for (int i=102; i < 1090; i = i + 44) {
+		for (int i=GameTimer.START_MAP_WIDTH; i+42 < GameTimer.END_MAP_WIDTH; i = i + 42) {
+			if (i == GameTimer.START_MAP_HEIGHT) {
+				for (int j=GameTimer.START_MAP_WIDTH; j+42 < GameTimer.END_MAP_HEIGHT; j = j + 42) {
+					Steel newSteel = new Steel(i, j);
+					this.steel.add(newSteel);
+				}
+				continue;
+			}
 			if (isAlternateX) {
-				for (int j=94; j < 708; j = j + 44) {
+				for (int j=92; j+42 < GameTimer.END_MAP_HEIGHT; j = j + 42) {
 					if (isAlternateY) {
 						Wall newWall = new Wall(i, j);
 						this.wall.add(newWall);
@@ -106,11 +127,14 @@ class GameTimer extends AnimationTimer{
 					isAlternateY = !isAlternateY;
 				}
 			} else {
-				for (int j=94; j < 708; j = j + 44) {
+				for (int j=92; j < GameTimer.END_MAP_HEIGHT; j = j + 42) {
 					Bush newBush = new Bush(i, j);
 					this.bush.add(newBush);
 				}
 			}
+
+			Steel newSteel = new Steel(i, GameTimer.START_MAP_WIDTH);
+			this.steel.add(newSteel);
 			isAlternateX = !isAlternateX;
 		}
 	}
@@ -293,6 +317,17 @@ class GameTimer extends AnimationTimer{
 		}
 	}
 
+	void checkSteelCollision() {
+		for (Steel steel: this.steel) {
+			if (steel.collidesWith(this.player)) {
+				this.player.setSpeed(1);
+				break;
+			} else {
+				this.player.setSpeed(0.5);
+			}
+		}
+	}
+
 	private void prepareActionHandlers() {	// method for the player controls
 			Duration firingInterval = Duration.millis(500);
 			Timeline firing = new Timeline(
@@ -316,8 +351,9 @@ class GameTimer extends AnimationTimer{
                 }else if(code.equals("SPACE") && firing.getStatus() != Animation.Status.RUNNING) {
 									GameTimer.fireBullet = true;
 									firing.playFromStart();
+								}else if (code.equals("SLASH")) {
+									System.out.println("yes");
 								}
-
             }
         });
     	this.scene.setOnKeyReleased(new EventHandler<KeyEvent>()
@@ -343,26 +379,26 @@ class GameTimer extends AnimationTimer{
 
 	private void movePlayer() {		// method for controlling the player
 		if (GameTimer.goLeft) {
-			if (this.player.getXPos() <= 1088 && this.player.getXPos() > 60) {
-				this.player.setXPos(this.player.getXPos() - 0.5);
+			if (this.player.getXPos() <= GameTimer.END_MAP_WIDTH && this.player.getXPos() > GameTimer.START_MAP_WIDTH) {
+				this.player.setXPos(this.player.getXPos() - this.player.getSpeed());
 			}
 			this.player.loadImage(left);
 			currentFacing = "left";
 		} else if (GameTimer.goRight) {
-				if (this.player.getXPos() < 1088 && this.player.getXPos() >= 60) {
-					this.player.setXPos(this.player.getXPos() + 0.5);
+				if (this.player.getXPos()+40 < GameTimer.END_MAP_WIDTH && this.player.getXPos() >= GameTimer.START_MAP_WIDTH) {
+					this.player.setXPos(this.player.getXPos() + this.player.getSpeed());
 				}
 			this.player.loadImage(right);
 			currentFacing = "right";
 		} else if (GameTimer.goUp) {
-				if (this.player.getYPos() <= 708 && this.player.getYPos() > 52) {
-					this.player.setYPos(this.player.getYPos() - 0.5);
+				if (this.player.getYPos() <= GameTimer.END_MAP_HEIGHT && this.player.getYPos() > GameTimer.START_MAP_HEIGHT) {
+					this.player.setYPos(this.player.getYPos() - this.player.getSpeed());
 				}
 			this.player.loadImage(up);
 			currentFacing = "up";
 		} else if (GameTimer.goDown) {
-				if (this.player.getYPos() < 708 && this.player.getYPos() >= 52) {
-					this.player.setYPos(this.player.getYPos() + 0.5);
+				if (this.player.getYPos()+40 < GameTimer.END_MAP_HEIGHT && this.player.getYPos() >= GameTimer.START_MAP_HEIGHT) {
+					this.player.setYPos(this.player.getYPos() + this.player.getSpeed());
 				}
 			this.player.loadImage(down);
 			currentFacing = "down";
@@ -401,25 +437,25 @@ class GameTimer extends AnimationTimer{
 
 	private void moveBullet(Bullet fire) {
 		if (fire.getDirection() == "up") {
-			if (fire.getYPos() > 52) {
+			if (fire.getYPos() > GameTimer.START_MAP_HEIGHT) {
 				fire.setYPos(fire.getYPos()-5);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "down") {
-			if (fire.getYPos() < 750) {
+			if (fire.getYPos() < GameTimer.END_MAP_HEIGHT) {
 				fire.setYPos(fire.getYPos()+5);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "left") {
-			if (fire.getXPos() > 60) {
+			if (fire.getXPos() > GameTimer.START_MAP_WIDTH) {
 				fire.setXPos(fire.getXPos()-5);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "right") {
-			if (fire.getXPos() < 1130) {
+			if (fire.getXPos() < GameTimer.END_MAP_WIDTH) {
 				fire.setXPos(fire.getXPos()+5);
 			} else {
 				fire.setVisible(false);

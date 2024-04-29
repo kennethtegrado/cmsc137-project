@@ -2,6 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "App",
+      "request": "launch",
+      "mainClass": "Main.App",
+      "projectName": "kpop_io_game_final"
+    },
+    {
+      "type": "java",
+      "name": "ChatApp",
+      "request": "launch",
+      "mainClass": "MainGameStage.ChatApp",
+      "projectName": "kpop_io_game_final"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",
