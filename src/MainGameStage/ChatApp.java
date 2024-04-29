@@ -23,6 +23,12 @@ public class ChatApp extends Application {
     private NetworkConnection connection = isServer ? createServer() : createClient();
 
     public VBox createContent() {
+        try {
+            connection.startConnection();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         messages.setFont(Font.font(14));
         messages.setPrefHeight(360);
         messages.setWrapText(true);
@@ -50,12 +56,12 @@ public class ChatApp extends Application {
             }
         });
 
-        // input.setOnKeyPressed(event -> {
-        //     if (event.getCode() == KeyCode.ENTER) {
-        //         // Request focus on another node to unfocus the TextField
-        //         input.getParent().requestFocus();
-        //     }
-        // });
+        input.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                // Request focus on another node to unfocus the TextField
+                input.getParent().requestFocus();
+            }
+        });
 
         messages.setFocusTraversable(false);
         input.setFocusTraversable(false);
@@ -69,10 +75,6 @@ public class ChatApp extends Application {
         root.setMaxWidth(362);
         root.setMaxHeight(460);
         return root;
-    }
-
-    public TextField getTextFieldNode() {
-        return this.input;
     }
 
     @Override
