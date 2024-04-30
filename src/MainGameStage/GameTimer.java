@@ -347,10 +347,10 @@ class GameTimer extends AnimationTimer{
 	void checkSteelCollision() {
 		for (Steel steel: this.steel) {
 			if (steel.collidesWith(this.player)) {
-				this.player.setSpeed(1);
+				this.player.setSpeed(2);
 				break;
 			} else {
-				this.player.setSpeed(0.5);
+				this.player.setSpeed(1);
 			}
 		}
 	}

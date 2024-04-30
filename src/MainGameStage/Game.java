@@ -19,6 +19,7 @@ package MainGameStage;
 
 import com.sun.prism.paint.Color;
 
+import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -42,9 +43,11 @@ public class Game {
 	private Scene gameScene;		// the game scene
 	private StackPane root;
 	private Canvas canvas;			// the canvas where the animation happens
+    private double bgOffsetX = 0; // Initial X offset for the background image
 
 	public final static int WINDOW_WIDTH = 1500;
 	public final static int WINDOW_HEIGHT = 800;
+    
 
 	public Game(){
 		this.canvas = new Canvas( Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT );
@@ -78,22 +81,54 @@ public class Game {
 	}
 
 	private Canvas createCanvas() {
-    	Canvas canvas = new Canvas(Game.WINDOW_WIDTH,Game.WINDOW_HEIGHT);
+        Canvas canvas = new Canvas(Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        Image bg = new Image("images/gameScreen.png");
-        gc.drawImage(bg, 0, 0);
+        // Use an AnimationTimer to continuously redraw the background
+        new AnimationTimer() {
+            @Override
+            public void handle(long currentNanoTime) {
+                drawBackground(gc);
+            }
+        }.start();
+
         return canvas;
     }
 
-    private VBox createVBox() {
-    	VBox vbox = new VBox();
-        vbox.setAlignment(Pos.BOTTOM_CENTER);
-        vbox.setPadding(new Insets(120));
+    // Method to draw the background image with scrolling effect
+    private void drawBackground(GraphicsContext gc) {
+        // Clear canvas
+        gc.clearRect(0, 0, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
 
+        // Draw background image
+        Image bg = new Image("images/gameScreen.png");
+
+        // Calculate the new offset based on time or player position
+        // For example, you can use time to make it scroll automatically
+        bgOffsetX -= 1; // Adjust the scrolling speed as needed
+        
+        // Draw the background image twice to create the scrolling effect
+        gc.drawImage(bg, bgOffsetX, 0);
+        gc.drawImage(bg, bgOffsetX + bg.getWidth(), 0);
+
+        // If the first image is out of view, reset the offset
+        if (bgOffsetX <= -bg.getWidth()) {
+            bgOffsetX = 0;
+        }
+    }
+
+    private VBox createVBox() {
         Image newGame = new Image("images/new.png");
+        ImageView title = new ImageView("images/logo.png");
         ImageView newGameView = new ImageView(newGame);
 
+    	VBox vbox = new VBox(title);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(120));
+        vbox.setSpacing(120);
+
+        title.setFitWidth(600);
+        title.setPreserveRatio(true);
         newGameView.setFitHeight(70);
         newGameView.setFitWidth(200);
         newGameView.setPreserveRatio(true);

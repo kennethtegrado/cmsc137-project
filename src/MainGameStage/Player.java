@@ -31,7 +31,7 @@ class Player {
 		this.yPos = INITIAL_Y;
 		this.fireRate = 800;
 		this.lastBulletFired = 0;
-		this.speed = 0.5;
+		this.speed = 1;
 	}
 
 	String getName(){
