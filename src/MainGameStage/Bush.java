@@ -6,9 +6,9 @@ import javafx.scene.image.Image;
 public class Bush {
   private double xPos;
 	private double yPos;
-  private Image bush = new Image("images/bush.png", 40, 40, false, false);
-  private Image bush1 = new Image("images/bush-1.png", 40, 40, false, false);
-  private Image bush2 = new Image("images/bush-2.png", 40, 40, false, false);
+  private Image bush = new Image("images/bush.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image bush1 = new Image("images/bush-1.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image bush2 = new Image("images/bush-2.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
 
 	Bush (double xPos, double yPos){
 		this.xPos = xPos;

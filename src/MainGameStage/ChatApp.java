@@ -30,7 +30,7 @@ public class ChatApp extends Application {
             e.printStackTrace();
         }
         messages.setFont(Font.font(14));
-        messages.setPrefHeight(360);
+        messages.setPrefHeight(350);
         messages.setWrapText(true);
         messages.setStyle("-fx-control-inner-background: #000000; -fx-border-style: none;");
         messages.setEditable(false);
@@ -72,8 +72,8 @@ public class ChatApp extends Application {
         root.setMinHeight(75);
 
         // Set maximum width and height
-        root.setMaxWidth(362);
-        root.setMaxHeight(460);
+        root.setMaxWidth(382);
+        root.setMaxHeight(440);
         return root;
     }
 

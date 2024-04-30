@@ -6,9 +6,9 @@ import javafx.scene.image.Image;
 public class Water {
   private double xPos;
 	private double yPos;
-  private Image water = new Image("images/water.png", 40, 40, false, false);
-  private Image water1 = new Image("images/water-1.png", 40, 40, false, false);
-  private Image water2 = new Image("images/water-2.png", 40, 40, false, false);
+  private Image water = new Image("images/water.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image water1 = new Image("images/water-1.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image water2 = new Image("images/water-2.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
 
 	Water (double xPos, double yPos){
 		this.xPos = xPos;

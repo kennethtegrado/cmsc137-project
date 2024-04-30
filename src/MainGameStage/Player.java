@@ -18,8 +18,10 @@ class Player {
 	private String name;
 	private double xPos;
 	private double yPos;
+	private double fireRate;
+	private double lastBulletFired;
 	private double speed;
-	private Image player = new Image("images/tank-up.png", 40, 40, false, false);
+	private Image player = new Image("images/tank-up.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 	private final static double INITIAL_X = 55;
 	private final static double INITIAL_Y = 50;
 
@@ -27,6 +29,8 @@ class Player {
 		this.name = name;
 		this.xPos = INITIAL_X;
 		this.yPos = INITIAL_Y;
+		this.fireRate = 800;
+		this.lastBulletFired = 0;
 		this.speed = 0.5;
 	}
 
@@ -52,6 +56,22 @@ class Player {
 	
 	void setYPos(double newYPos) {
 		this.yPos = newYPos;
+	}
+
+	double getFireRate() {
+		return this.fireRate;
+	}
+
+	void setFireRate(double newFireRate) {
+		this.fireRate = newFireRate;
+	}
+
+	double getLastBulletFired() {
+		return this.lastBulletFired;
+	}
+
+	void setLastBulletFired(double newBulletFired) {
+		this.lastBulletFired = newBulletFired;
 	}
 
 	double getSpeed() {

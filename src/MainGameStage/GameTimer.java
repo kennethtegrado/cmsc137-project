@@ -42,6 +42,8 @@ class GameTimer extends AnimationTimer{
 	private int change;
 	private long startChanging;
 
+	public static int PLAYER_SIZE = 32;
+	public static int SPRITE_SIZE = 35;
 	private static boolean goLeft;
 	private static boolean goRight;
 	private static boolean goUp;
@@ -50,14 +52,14 @@ class GameTimer extends AnimationTimer{
 
 	public final static int START_MAP_WIDTH = 55;
 	public final static int START_MAP_HEIGHT = 50;
-	public final static int END_MAP_WIDTH = 1165;
-	public final static int END_MAP_HEIGHT = 740;
+	public final static int END_MAP_WIDTH = 1141;
+	public final static int END_MAP_HEIGHT = 752;
 
 	private final static Image GAME_BG = new Image("images/gameBg.png");	
-	private Image up = new Image("images/tank-up.png", 40, 40, false, false);
-	private Image left = new Image("images/tank-left.png", 40, 40, false, false);
-	private Image down = new Image("images/tank-down.png", 40, 40, false, false);
-	private Image right = new Image("images/tank-right.png", 40, 40, false, false);
+	private Image up = new Image("images/tank-up.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
+	private Image left = new Image("images/tank-left.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
+	private Image down = new Image("images/tank-down.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
+	private Image right = new Image("images/tank-right.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 
 	GameTimer(Scene scene, GraphicsContext gc) {
 		this.gc = gc;
@@ -90,10 +92,6 @@ class GameTimer extends AnimationTimer{
 		
 		this.movePlayer();
 		this.renderMap(currentNanoTime);
-		this.checkWaterCollision();
-		this.checkWallCollision();
-		this.checkMetalCollision();
-		this.checkSteelCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
 		}
@@ -103,16 +101,16 @@ class GameTimer extends AnimationTimer{
 		boolean isAlternateX = true;
 		boolean isAlternateY = true;
 		int a = 0;
-		for (int i=GameTimer.START_MAP_WIDTH; i+42 < GameTimer.END_MAP_WIDTH; i = i + 42) {
+		for (int i=GameTimer.START_MAP_WIDTH; i+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_WIDTH; i = i + GameTimer.SPRITE_SIZE) {
 			if (i == GameTimer.START_MAP_WIDTH) {
-				for (int j=GameTimer.START_MAP_HEIGHT; j+42 < GameTimer.END_MAP_HEIGHT; j = j + 42) {
+				for (int j=GameTimer.START_MAP_HEIGHT; j+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
 					Bush newBush = new Bush(i, j);
 					this.bush.add(newBush);
 				}
 				continue;
 			}
 			if (isAlternateX) {
-				for (int j=92; j+42 < GameTimer.END_MAP_HEIGHT; j = j + 42) {
+				for (int j=GameTimer.START_MAP_HEIGHT+GameTimer.SPRITE_SIZE; j+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
 					if (isAlternateY) {
 						Wall newWall = new Wall(i, j);
 						this.wall.add(newWall);
@@ -130,7 +128,7 @@ class GameTimer extends AnimationTimer{
 					isAlternateY = !isAlternateY;
 				}
 			} else {
-				for (int j=92; j < GameTimer.END_MAP_HEIGHT - 42; j = j + 42) {
+				for (int j=GameTimer.START_MAP_HEIGHT+GameTimer.SPRITE_SIZE; j < GameTimer.END_MAP_HEIGHT - GameTimer.SPRITE_SIZE; j = j + GameTimer.SPRITE_SIZE) {
 					Steel newSteel = new Steel(i, j);
 					this.steel.add(newSteel);
 				}
@@ -182,44 +180,48 @@ class GameTimer extends AnimationTimer{
 	void checkWallCollision() {
 		for (Wall wall: this.wall) {
 			if (currentFacing == "up") {
-				boolean hasCollisionX = (this.player.getXPos() >= wall.getXPos() 
-																&& this.player.getXPos() <= wall.getXPos()+40)
-																|| (this.player.getXPos()+40 >= wall.getXPos()
-																&& this.player.getXPos()+40 <= wall.getXPos()+40);
-				boolean hasCollisionY = (this.player.getYPos() <= wall.getYPos()+40
-																&& this.player.getYPos()+40 > wall.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos() > wall.getXPos() 
+																&& this.player.getXPos() < wall.getXPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getXPos()+GameTimer.PLAYER_SIZE > wall.getXPos()
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE < wall.getXPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionY = (this.player.getYPos() < wall.getYPos()+GameTimer.PLAYER_SIZE
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE > wall.getYPos()+GameTimer.PLAYER_SIZE);
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goUp = false;
+					this.player.setYPos(this.player.getYPos()+1);
 				}
 			} else if (currentFacing == "down") {
 				boolean hasCollisionX = (this.player.getXPos() > wall.getXPos() 
-																&& this.player.getXPos() < wall.getXPos()+40)
-																|| (this.player.getXPos()+40 > wall.getXPos()
-																&& this.player.getXPos()+40 < wall.getXPos()+40);
-				boolean hasCollisionY = (this.player.getYPos()+40 >= wall.getYPos()
+																&& this.player.getXPos() < wall.getXPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getXPos()+GameTimer.PLAYER_SIZE > wall.getXPos()
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE < wall.getXPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionY = (this.player.getYPos()+GameTimer.PLAYER_SIZE > wall.getYPos()
 																&& this.player.getYPos() < wall.getYPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goDown = false;
+					this.player.setYPos(this.player.getYPos()-1);
 				}
 			} else if (currentFacing == "left") {
-				boolean hasCollisionY = (this.player.getYPos() >= wall.getYPos() 
-																&& this.player.getYPos() <= wall.getYPos()+40)
-																|| (this.player.getYPos()+40 >= wall.getYPos()
-																&& this.player.getYPos()+40 <= wall.getYPos()+40);
-				boolean hasCollisionX = (this.player.getXPos() <= wall.getXPos()+40
-																&& this.player.getXPos()+40 > wall.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos() > wall.getYPos() 
+																&& this.player.getYPos() <=wall.getYPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getYPos()+GameTimer.PLAYER_SIZE > wall.getYPos()
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE < wall.getYPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionX = (this.player.getXPos() < wall.getXPos()+GameTimer.PLAYER_SIZE
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE > wall.getXPos()+GameTimer.PLAYER_SIZE);
 				if (hasCollisionX && hasCollisionY) {
 					GameTimer.goLeft = false;
+					this.player.setXPos(this.player.getXPos()+2);
 				}
 			} else if (currentFacing == "right") {
 				boolean hasCollisionY = (this.player.getYPos() > wall.getYPos() 
-																&& this.player.getYPos() < wall.getYPos()+40)
-																|| (this.player.getYPos()+40 > wall.getYPos()
-																&& this.player.getYPos()+40 < wall.getYPos()+40);
-				boolean hasCollisionX = (this.player.getXPos()+40 >= wall.getXPos()
+																&& this.player.getYPos() < wall.getYPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getYPos()+GameTimer.PLAYER_SIZE > wall.getYPos()
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE < wall.getYPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionX = (this.player.getXPos()+GameTimer.PLAYER_SIZE > wall.getXPos()
 																&& this.player.getXPos() < wall.getXPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goRight = false;
+					this.player.setXPos(this.player.getXPos()-1);
 				}
 			}
 
@@ -237,44 +239,48 @@ class GameTimer extends AnimationTimer{
 	void checkWaterCollision() {
 		for (Water water: this.water) {
 			if (currentFacing == "up") {
-				boolean hasCollisionX = (this.player.getXPos() >= water.getXPos() 
-																&& this.player.getXPos() <= water.getXPos()+40)
-																|| (this.player.getXPos()+40 >= water.getXPos()
-																&& this.player.getXPos()+40 <= water.getXPos()+40);
-				boolean hasCollisionY = (this.player.getYPos() <= water.getYPos()+40
-																&& this.player.getYPos()+40 > water.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos() > water.getXPos() 
+																&& this.player.getXPos() < water.getXPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getXPos()+GameTimer.PLAYER_SIZE > water.getXPos()
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE < water.getXPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionY = (this.player.getYPos() < water.getYPos()+GameTimer.PLAYER_SIZE
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE > water.getYPos()+GameTimer.PLAYER_SIZE);
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goUp = false;
+					this.player.setYPos(this.player.getYPos()+1);
 				}
 			} else if (currentFacing == "down") {
 				boolean hasCollisionX = (this.player.getXPos() > water.getXPos() 
-																&& this.player.getXPos() < water.getXPos()+40)
-																|| (this.player.getXPos()+40 > water.getXPos()
-																&& this.player.getXPos()+40 < water.getXPos()+40);
-				boolean hasCollisionY = (this.player.getYPos()+40 >= water.getYPos()
+																&& this.player.getXPos() < water.getXPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getXPos()+GameTimer.PLAYER_SIZE > water.getXPos()
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE < water.getXPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionY = (this.player.getYPos()+GameTimer.PLAYER_SIZE > water.getYPos()
 																&& this.player.getYPos() < water.getYPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goDown = false;
+					this.player.setYPos(this.player.getYPos()-1);
 				}
 			} else if (currentFacing == "left") {
-				boolean hasCollisionY = (this.player.getYPos() >= water.getYPos() 
-																&& this.player.getYPos() <= water.getYPos()+40)
-																|| (this.player.getYPos()+40 >= water.getYPos()
-																&& this.player.getYPos()+40 <= water.getYPos()+40);
-				boolean hasCollisionX = (this.player.getXPos() <= water.getXPos()+40
-																&& this.player.getXPos()+40 > water.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos() > water.getYPos() 
+																&& this.player.getYPos() < water.getYPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getYPos()+GameTimer.PLAYER_SIZE > water.getYPos()
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE < water.getYPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionX = (this.player.getXPos() < water.getXPos()+GameTimer.PLAYER_SIZE
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE > water.getXPos()+GameTimer.PLAYER_SIZE);
 				if (hasCollisionX && hasCollisionY) {
 					GameTimer.goLeft = false;
+					this.player.setXPos(this.player.getXPos()+2);
 				}
 			} else if (currentFacing == "right") {
 				boolean hasCollisionY = (this.player.getYPos() > water.getYPos() 
-																&& this.player.getYPos() < water.getYPos()+40)
-																|| (this.player.getYPos()+40 > water.getYPos()
-																&& this.player.getYPos()+40 < water.getYPos()+40);
-				boolean hasCollisionX = (this.player.getXPos()+40 >= water.getXPos()
+																&& this.player.getYPos() < water.getYPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getYPos()+GameTimer.PLAYER_SIZE > water.getYPos()
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE < water.getYPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionX = (this.player.getXPos()+GameTimer.PLAYER_SIZE > water.getXPos()
 																&& this.player.getXPos() < water.getXPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goRight = false;
+					this.player.setXPos(this.player.getXPos()-1);
 				}
 			}
 		}
@@ -283,44 +289,48 @@ class GameTimer extends AnimationTimer{
 	void checkMetalCollision() {
 		for (Metal metal: this.metal) {
 			if (currentFacing == "up") {
-				boolean hasCollisionX = (this.player.getXPos() >= metal.getXPos() 
-																&& this.player.getXPos() <= metal.getXPos()+40)
-																|| (this.player.getXPos()+40 >= metal.getXPos()
-																&& this.player.getXPos()+40 <= metal.getXPos()+40);
-				boolean hasCollisionY = (this.player.getYPos() <= metal.getYPos()+40
-																&& this.player.getYPos()+40 > metal.getYPos()+40);
+				boolean hasCollisionX = (this.player.getXPos() > metal.getXPos() 
+																&& this.player.getXPos() < metal.getXPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getXPos()+GameTimer.PLAYER_SIZE > metal.getXPos()
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE < metal.getXPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionY = (this.player.getYPos() < metal.getYPos()+GameTimer.PLAYER_SIZE
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE > metal.getYPos()+GameTimer.PLAYER_SIZE);
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goUp = false;
+					this.player.setYPos(this.player.getYPos()+1);
 				}
 			} else if (currentFacing == "down") {
 				boolean hasCollisionX = (this.player.getXPos() > metal.getXPos() 
-																&& this.player.getXPos() < metal.getXPos()+40)
-																|| (this.player.getXPos()+40 > metal.getXPos()
-																&& this.player.getXPos()+40 < metal.getXPos()+40);
-				boolean hasCollisionY = (this.player.getYPos()+40 >= metal.getYPos()
+																&& this.player.getXPos() < metal.getXPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getXPos()+GameTimer.PLAYER_SIZE > metal.getXPos()
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE < metal.getXPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionY = (this.player.getYPos()+GameTimer.PLAYER_SIZE > metal.getYPos()
 																&& this.player.getYPos() < metal.getYPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goDown = false;
+					this.player.setYPos(this.player.getYPos()-1);
 				}
 			} else if (currentFacing == "left") {
-				boolean hasCollisionY = (this.player.getYPos() >= metal.getYPos() 
-																&& this.player.getYPos() <= metal.getYPos()+40)
-																|| (this.player.getYPos()+40 >= metal.getYPos()
-																&& this.player.getYPos()+40 <= metal.getYPos()+40);
-				boolean hasCollisionX = (this.player.getXPos() <= metal.getXPos()+40
-																&& this.player.getXPos()+40 > metal.getXPos()+40);
+				boolean hasCollisionY = (this.player.getYPos() > metal.getYPos() 
+																&& this.player.getYPos() < metal.getYPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getYPos()+GameTimer.PLAYER_SIZE > metal.getYPos()
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE < metal.getYPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionX = (this.player.getXPos() < metal.getXPos()+GameTimer.PLAYER_SIZE
+																&& this.player.getXPos()+GameTimer.PLAYER_SIZE > metal.getXPos()+GameTimer.PLAYER_SIZE);
 				if (hasCollisionX && hasCollisionY) {
 					GameTimer.goLeft = false;
+					this.player.setXPos(this.player.getXPos()+2);
 				}
 			} else if (currentFacing == "right") {
 				boolean hasCollisionY = (this.player.getYPos() > metal.getYPos() 
-																&& this.player.getYPos() < metal.getYPos()+40)
-																|| (this.player.getYPos()+40 > metal.getYPos()
-																&& this.player.getYPos()+40 < metal.getYPos()+40);
-				boolean hasCollisionX = (this.player.getXPos()+40 >= metal.getXPos()
+																&& this.player.getYPos() < metal.getYPos()+GameTimer.PLAYER_SIZE)
+																|| (this.player.getYPos()+GameTimer.PLAYER_SIZE > metal.getYPos()
+																&& this.player.getYPos()+GameTimer.PLAYER_SIZE < metal.getYPos()+GameTimer.PLAYER_SIZE);
+				boolean hasCollisionX = (this.player.getXPos()+GameTimer.PLAYER_SIZE > metal.getXPos()
 																&& this.player.getXPos() < metal.getXPos());
 				if (hasCollisionY && hasCollisionX) {
 					GameTimer.goRight = false;
+					this.player.setXPos(this.player.getXPos()-1);
 				}
 			}
 
@@ -395,61 +405,70 @@ class GameTimer extends AnimationTimer{
     }
 
 	private void movePlayer() {		// method for controlling the player
-		if (GameTimer.goLeft) {
-			if (this.player.getXPos() <= GameTimer.END_MAP_WIDTH && this.player.getXPos() > GameTimer.START_MAP_WIDTH) {
-				this.player.setXPos(this.player.getXPos() - this.player.getSpeed());
+		this.checkWaterCollision();
+		this.checkWallCollision();
+		this.checkMetalCollision();
+		this.checkSteelCollision();
+		
+			if (GameTimer.goLeft) {
+				if (this.player.getXPos() <= GameTimer.END_MAP_WIDTH && this.player.getXPos() > GameTimer.START_MAP_WIDTH) {
+					this.player.setXPos(this.player.getXPos() - this.player.getSpeed());
+				}
+				this.player.loadImage(left);
+				currentFacing = "left";
+			} else if (GameTimer.goRight) {
+					if (this.player.getXPos()+GameTimer.PLAYER_SIZE < GameTimer.END_MAP_WIDTH && this.player.getXPos() >= GameTimer.START_MAP_WIDTH) {
+						this.player.setXPos(this.player.getXPos() + this.player.getSpeed());
+					}
+				this.player.loadImage(right);
+				currentFacing = "right";
+			} else if (GameTimer.goUp) {
+					if (this.player.getYPos() <= GameTimer.END_MAP_HEIGHT && this.player.getYPos() > GameTimer.START_MAP_HEIGHT) {
+						this.player.setYPos(this.player.getYPos() - this.player.getSpeed());
+					}
+				this.player.loadImage(up);
+				currentFacing = "up";
+			} else if (GameTimer.goDown) {
+					if (this.player.getYPos()+GameTimer.PLAYER_SIZE < GameTimer.END_MAP_HEIGHT && this.player.getYPos() >= GameTimer.START_MAP_HEIGHT) {
+						this.player.setYPos(this.player.getYPos() + this.player.getSpeed());
+					}
+				this.player.loadImage(down);
+				currentFacing = "down";
 			}
-			this.player.loadImage(left);
-			currentFacing = "left";
-		} else if (GameTimer.goRight) {
-				if (this.player.getXPos()+40 < GameTimer.END_MAP_WIDTH && this.player.getXPos() >= GameTimer.START_MAP_WIDTH) {
-					this.player.setXPos(this.player.getXPos() + this.player.getSpeed());
-				}
-			this.player.loadImage(right);
-			currentFacing = "right";
-		} else if (GameTimer.goUp) {
-				if (this.player.getYPos() <= GameTimer.END_MAP_HEIGHT && this.player.getYPos() > GameTimer.START_MAP_HEIGHT) {
-					this.player.setYPos(this.player.getYPos() - this.player.getSpeed());
-				}
-			this.player.loadImage(up);
-			currentFacing = "up";
-		} else if (GameTimer.goDown) {
-				if (this.player.getYPos()+40 < GameTimer.END_MAP_HEIGHT && this.player.getYPos() >= GameTimer.START_MAP_HEIGHT) {
-					this.player.setYPos(this.player.getYPos() + this.player.getSpeed());
-				}
-			this.player.loadImage(down);
-			currentFacing = "down";
-		}
 		this.player.render(this.gc);
 	}
 
 	private void fireBullet() {
-		if (GameTimer.fireBullet) {
-			Bullet fire = new Bullet(0, 0, "");
-			if (currentFacing == "up") {
-				fire.setDirection(currentFacing);
-				fire.setVisible(true);
-				fire.setXPos(this.player.getXPos()+17);
-				fire.setYPos(this.player.getYPos()-10);
-			} else if (currentFacing == "down") {
-				fire.setDirection(currentFacing);
-				fire.setVisible(true);
-				fire.setXPos(this.player.getXPos()+18);
-				fire.setYPos(this.player.getYPos()+40);
-			} else if (currentFacing == "left") {
-				fire.setDirection(currentFacing);
-				fire.setVisible(true);
-				fire.setXPos(this.player.getXPos()-10);
-				fire.setYPos(this.player.getYPos()+17);
-			} else if (currentFacing == "right") {
-				fire.setDirection(currentFacing);
-				fire.setVisible(true);
-				fire.setXPos(this.player.getXPos()+40);
-				fire.setYPos(this.player.getYPos()+17);
+		long currentTime = System.currentTimeMillis();
+		if (currentTime - this.player.getLastBulletFired() > this.player.getFireRate()) {
+			if (GameTimer.fireBullet) {
+				Bullet fire = new Bullet(0, 0, "");
+				if (currentFacing == "up") {
+					fire.setDirection(currentFacing);
+					fire.setVisible(true);
+					fire.setXPos(this.player.getXPos()+17);
+					fire.setYPos(this.player.getYPos()-10);
+				} else if (currentFacing == "down") {
+					fire.setDirection(currentFacing);
+					fire.setVisible(true);
+					fire.setXPos(this.player.getXPos()+18);
+					fire.setYPos(this.player.getYPos()+GameTimer.PLAYER_SIZE);
+				} else if (currentFacing == "left") {
+					fire.setDirection(currentFacing);
+					fire.setVisible(true);
+					fire.setXPos(this.player.getXPos()-10);
+					fire.setYPos(this.player.getYPos()+17);
+				} else if (currentFacing == "right") {
+					fire.setDirection(currentFacing);
+					fire.setVisible(true);
+					fire.setXPos(this.player.getXPos()+GameTimer.PLAYER_SIZE);
+					fire.setYPos(this.player.getYPos()+17);
+				}
+				this.bullet.add(fire);
+				GameTimer.fireBullet = false;
 			}
-			this.bullet.add(fire);
-			GameTimer.fireBullet = false;
-		}
+			this.player.setLastBulletFired(currentTime);
+    }
 	}
 
 	private void moveBullet(Bullet fire) {
@@ -460,7 +479,7 @@ class GameTimer extends AnimationTimer{
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "down") {
-			if (fire.getYPos() < GameTimer.END_MAP_HEIGHT) {
+			if (fire.getYPos() < GameTimer.END_MAP_HEIGHT-10) {
 				fire.setYPos(fire.getYPos()+5);
 			} else {
 				fire.setVisible(false);
@@ -472,7 +491,7 @@ class GameTimer extends AnimationTimer{
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "right") {
-			if (fire.getXPos() < GameTimer.END_MAP_WIDTH) {
+			if (fire.getXPos() < GameTimer.END_MAP_WIDTH-10) {
 				fire.setXPos(fire.getXPos()+5);
 			} else {
 				fire.setVisible(false);

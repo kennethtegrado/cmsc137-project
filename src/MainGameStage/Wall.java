@@ -7,11 +7,11 @@ import javafx.scene.image.Image;
 public class Wall {
   private double xPos;
 	private double yPos;
-  private Image wall = new Image("images/wall-brick.png", 40, 40, false, false);
-  private Image wallHealth4 = new Image("images/wall-brick-4.png", 40, 40, false, false);
-  private Image wallHealth3 = new Image("images/wall-brick-3.png", 40, 40, false, false);
-  private Image wallHealth2 = new Image("images/wall-brick-2.png", 40, 40, false, false);
-  private Image wallHealth1 = new Image("images/wall-brick-1.png", 40, 40, false, false);
+  private Image wall = new Image("images/wall-brick.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image wallHealth4 = new Image("images/wall-brick-4.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image wallHealth3 = new Image("images/wall-brick-3.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image wallHealth2 = new Image("images/wall-brick-2.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
+  private Image wallHealth1 = new Image("images/wall-brick-1.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
   private boolean visible;
   private int health;
 

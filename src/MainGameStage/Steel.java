@@ -7,7 +7,7 @@ import javafx.scene.image.Image;
 public class Steel {
   private double xPos;
 	private double yPos;
-  private Image steel = new Image("images/steel.png", 40, 40, false, false);
+  private Image steel = new Image("images/steel.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
 
 	Steel (double xPos, double yPos){
 		this.xPos = xPos;

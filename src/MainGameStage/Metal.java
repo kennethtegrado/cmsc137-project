@@ -7,7 +7,7 @@ import javafx.scene.image.Image;
 public class Metal {
   private double xPos;
 	private double yPos;
-  private Image metal = new Image("images/metal.png", 40, 40, false, false);
+  private Image metal = new Image("images/metal.png", GameTimer.SPRITE_SIZE, GameTimer.SPRITE_SIZE, false, false);
 
 	Metal (double xPos, double yPos){
 		this.xPos = xPos;
