@@ -7,6 +7,8 @@ public class Water {
   private double xPos;
 	private double yPos;
   private Image water = new Image("images/water.png", 40, 40, false, false);
+  private Image water1 = new Image("images/water-1.png", 40, 40, false, false);
+  private Image water2 = new Image("images/water-2.png", 40, 40, false, false);
 
 	Water (double xPos, double yPos){
 		this.xPos = xPos;
@@ -33,7 +35,13 @@ public class Water {
 		this.water = newImage;
 	}
 
-  void render(GraphicsContext gc) {
-		gc.drawImage(this.water, this.xPos, this.yPos);
+  void render(GraphicsContext gc, int change) {
+    if (change == 1) {
+      gc.drawImage(this.water, this.xPos, this.yPos);
+    } else if (change == 2) {
+      gc.drawImage(this.water1, this.xPos, this.yPos);
+    } else {
+      gc.drawImage(this.water2, this.xPos, this.yPos);
+    }
 	}
 }

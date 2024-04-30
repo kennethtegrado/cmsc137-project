@@ -7,13 +7,12 @@ public class Bush {
   private double xPos;
 	private double yPos;
   private Image bush = new Image("images/bush.png", 40, 40, false, false);
-  private boolean visible;
+  private Image bush1 = new Image("images/bush-1.png", 40, 40, false, false);
+  private Image bush2 = new Image("images/bush-2.png", 40, 40, false, false);
 
 	Bush (double xPos, double yPos){
 		this.xPos = xPos;
 		this.yPos = yPos;
-    this.visible = true;
-    this.loadImage(this.bush);
 	}
 
   double getXPos() {
@@ -44,7 +43,13 @@ public class Bush {
 		this.bush = newImage;
 	}
 
-  void render(GraphicsContext gc) {
-		gc.drawImage(this.bush, this.xPos, this.yPos);
+  void render(GraphicsContext gc, int change) {
+    if (change == 1) {
+      gc.drawImage(this.bush, this.xPos, this.yPos);
+    } else if (change == 2) {
+      gc.drawImage(this.bush1, this.xPos, this.yPos);
+    } else {
+      gc.drawImage(this.bush2, this.xPos, this.yPos);
+    }
 	}
 }

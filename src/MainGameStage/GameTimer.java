@@ -37,8 +37,10 @@ class GameTimer extends AnimationTimer{
 	private ArrayList<Metal> metal;
 	private ArrayList<Steel> steel;
 	private String currentFacing;
-	private ChatApp chat;
 	private Scene scene;
+	private ChatApp chat;
+	private int change;
+	private long startChanging;
 
 	private static boolean goLeft;
 	private static boolean goRight;
@@ -71,6 +73,7 @@ class GameTimer extends AnimationTimer{
 		this.steel = new ArrayList<Steel>();
 		this.chat = new ChatApp();
 		this.currentFacing = "up";
+		this.change = 1;
 		this.prepareActionHandlers();
 		this.initializeMap();
 		//this.chat.createContent();
@@ -86,11 +89,11 @@ class GameTimer extends AnimationTimer{
 		}
 		
 		this.movePlayer();
-		//this.renderMap();
-		//this.checkWaterCollision();
-		//this.checkWallCollision();
-		//this.checkMetalCollision();
-		//this.checkSteelCollision();
+		this.renderMap(currentNanoTime);
+		this.checkWaterCollision();
+		this.checkWallCollision();
+		this.checkMetalCollision();
+		this.checkSteelCollision();
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
 		}
@@ -101,10 +104,10 @@ class GameTimer extends AnimationTimer{
 		boolean isAlternateY = true;
 		int a = 0;
 		for (int i=GameTimer.START_MAP_WIDTH; i+42 < GameTimer.END_MAP_WIDTH; i = i + 42) {
-			if (i == GameTimer.START_MAP_HEIGHT) {
-				for (int j=GameTimer.START_MAP_WIDTH; j+42 < GameTimer.END_MAP_HEIGHT; j = j + 42) {
-					Steel newSteel = new Steel(i, j);
-					this.steel.add(newSteel);
+			if (i == GameTimer.START_MAP_WIDTH) {
+				for (int j=GameTimer.START_MAP_HEIGHT; j+42 < GameTimer.END_MAP_HEIGHT; j = j + 42) {
+					Bush newBush = new Bush(i, j);
+					this.bush.add(newBush);
 				}
 				continue;
 			}
@@ -127,19 +130,19 @@ class GameTimer extends AnimationTimer{
 					isAlternateY = !isAlternateY;
 				}
 			} else {
-				for (int j=92; j < GameTimer.END_MAP_HEIGHT; j = j + 42) {
-					Bush newBush = new Bush(i, j);
-					this.bush.add(newBush);
+				for (int j=92; j < GameTimer.END_MAP_HEIGHT - 42; j = j + 42) {
+					Steel newSteel = new Steel(i, j);
+					this.steel.add(newSteel);
 				}
 			}
 
-			Steel newSteel = new Steel(i, GameTimer.START_MAP_WIDTH);
-			this.steel.add(newSteel);
+			Bush newBush = new Bush(i, GameTimer.START_MAP_HEIGHT);
+			this.bush.add(newBush);
 			isAlternateX = !isAlternateX;
 		}
 	}
 
-	void renderMap() {
+	void renderMap(long currentNanoTime) {
 		for (int i = 0; i < this.wall.size(); i++) {
 			Wall wall = this.wall.get(i);
 			if (wall.getHealth() > 0) {
@@ -150,11 +153,25 @@ class GameTimer extends AnimationTimer{
 		}
 
 		for (Bush bush: this.bush) {
-			bush.render(this.gc);
+			bush.render(this.gc, this.change);
+		}
+		
+		for (Water water: this.water) {
+			water.render(this.gc, this.change);
+		}
+
+		double spawnElapsedTime = (currentNanoTime - this.startChanging) / 1000000000.0;
+		if(spawnElapsedTime > 1.5) {
+			this.change = 2;
+			this.startChanging = System.nanoTime();
+		} else if (spawnElapsedTime > 1) {
+			this.change = 3;
+		} else if (spawnElapsedTime > 0.5) {
+			this.change = 1;
 		}
 
 		for (Water water: this.water) {
-			water.render(this.gc);
+			water.render(this.gc, this.change);
 		}
 
 		for (Metal metal: this.metal) {
