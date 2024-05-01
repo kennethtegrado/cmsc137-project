@@ -102,40 +102,44 @@ class GameTimer extends AnimationTimer{
 		boolean isAlternateY = true;
 		int a = 0;
 		for (int i=GameTimer.START_MAP_WIDTH; i+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_WIDTH; i = i + GameTimer.SPRITE_SIZE) {
-			if (i == GameTimer.START_MAP_WIDTH) {
+			if (i == GameTimer.START_MAP_WIDTH || i+GameTimer.SPRITE_SIZE*2 > GameTimer.END_MAP_WIDTH) {
 				for (int j=GameTimer.START_MAP_HEIGHT; j+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
-					Bush newBush = new Bush(i, j);
-					this.bush.add(newBush);
+					if (j == GameTimer.START_MAP_HEIGHT || j+GameTimer.SPRITE_SIZE*2 > GameTimer.END_MAP_HEIGHT) {
+						Bush newBush = new Bush(i, j);
+						this.bush.add(newBush);
+					} else {
+						Steel newSteel = new Steel(i, j);
+						this.steel.add(newSteel);
+					}
 				}
 				continue;
 			}
 			if (isAlternateX) {
-				for (int j=GameTimer.START_MAP_HEIGHT+GameTimer.SPRITE_SIZE; j+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
+				for (int j=GameTimer.START_MAP_HEIGHT+GameTimer.SPRITE_SIZE; j+GameTimer.SPRITE_SIZE*2 < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
 					if (isAlternateY) {
-						Wall newWall = new Wall(i, j);
-						this.wall.add(newWall);
-					} else {
-						if (a == 1) {
+						if (a == 0) {
 							Water newWater = new Water(i, j);
 							this.water.add(newWater);
-							a = 0;
-						} else {
+							a = 1;
+						} else if (a == 1) {
+							Wall newWall = new Wall(i, j);
+							this.wall.add(newWall);
+							a = 2;
+						} else if (a == 2) {
 							Metal newMetal = new Metal(i, j);
 							this.metal.add(newMetal);
-							a = 1;
+							a = 0; 
 						}
 					}
 					isAlternateY = !isAlternateY;
 				}
-			} else {
-				for (int j=GameTimer.START_MAP_HEIGHT+GameTimer.SPRITE_SIZE; j < GameTimer.END_MAP_HEIGHT - GameTimer.SPRITE_SIZE; j = j + GameTimer.SPRITE_SIZE) {
-					Steel newSteel = new Steel(i, j);
-					this.steel.add(newSteel);
-				}
 			}
 
-			Bush newBush = new Bush(i, GameTimer.START_MAP_HEIGHT);
-			this.bush.add(newBush);
+			Bush newBush1 = new Bush(i, 715);
+			this.bush.add(newBush1);
+
+			Bush newBush2 = new Bush(i, GameTimer.START_MAP_HEIGHT);
+			this.bush.add(newBush2);
 			isAlternateX = !isAlternateX;
 		}
 	}

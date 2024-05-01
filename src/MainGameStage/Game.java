@@ -17,8 +17,6 @@
 
 package MainGameStage;
 
-import com.sun.prism.paint.Color;
-
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -44,6 +42,7 @@ public class Game {
 	private StackPane root;
 	private Canvas canvas;			// the canvas where the animation happens
     private double bgOffsetX = 0; // Initial X offset for the background image
+    private AnimationTimer animationTimer; // Declare AnimationTimer as a class member
 
 	public final static int WINDOW_WIDTH = 1500;
 	public final static int WINDOW_HEIGHT = 800;
@@ -85,12 +84,13 @@ public class Game {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         // Use an AnimationTimer to continuously redraw the background
-        new AnimationTimer() {
+        animationTimer = new AnimationTimer() {
             @Override
             public void handle(long currentNanoTime) {
                 drawBackground(gc);
             }
-        }.start();
+        };
+        animationTimer.start();
 
         return canvas;
     }
@@ -152,10 +152,13 @@ public class Game {
     }
 
 	void setGame(Stage stage) {
-        stage.setScene( this.gameScene );
+        if (animationTimer != null) {
+            animationTimer.stop();
+            stage.setScene( this.gameScene );
 
-        GraphicsContext gc = this.canvas.getGraphicsContext2D();	// we will pass this gc to be able to draw on this Game's canvas
-        GameTimer gameTimer = new GameTimer(this.gameScene, gc);
-        gameTimer.start();			// this internally calls the handle() method of our GameTimer
+            GraphicsContext gc = this.canvas.getGraphicsContext2D();	// we will pass this gc to be able to draw on this Game's canvas
+            GameTimer gameTimer = new GameTimer(this.gameScene, gc);
+            gameTimer.start();			// this internally calls the handle() method of our GameTimer   
+        }
 	}
 }
