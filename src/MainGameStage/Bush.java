@@ -31,14 +31,6 @@ public class Bush {
 		this.yPos = newYPos;
 	}
 
-  boolean getVisible() {
-    return this.visible;
-  }
-
-  void setVisible(boolean newVisible) {
-    this.visible = newVisible;
-  }
-
   void loadImage(Image newImage) {
 		this.bush = newImage;
 	}

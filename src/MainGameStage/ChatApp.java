@@ -24,7 +24,11 @@ public class ChatApp extends Application {
 
     public VBox createContent() {
         try {
-            connection.startConnection();
+            if (isServer) {
+                connection.startServerConnection();
+            } else {
+                connection.startClientConnection();
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -79,7 +83,11 @@ public class ChatApp extends Application {
 
     @Override
     public void init() throws Exception {
-        connection.startConnection();
+        if (isServer) {
+            connection.startServerConnection();
+        } else {
+            connection.startClientConnection();
+        }
     }
 
     @Override
@@ -113,9 +121,5 @@ public class ChatApp extends Application {
                 messages.appendText(new String(original) + "\n");
             });
         });
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
