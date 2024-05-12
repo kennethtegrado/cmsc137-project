@@ -16,13 +16,19 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 //import javafx.scene.text.Font;
 //import javafx.scene.text.FontWeight;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import java.util.ArrayList;
 //import java.util.Random;
@@ -37,10 +43,13 @@ class GameTimer extends AnimationTimer{
 	private ArrayList<Metal> metal;
 	private ArrayList<Steel> steel;
 	private String currentFacing;
+	private Stage stage;
 	private Scene scene;
 	private ChatApp chat;
 	private int change;
 	private long startChanging;
+	private AnimationTimer animationTimer;
+	private double bgOffsetX = 0; // Initial X offset for the background image
 
 	public static int PLAYER_SIZE = 32;
 	public static int SPRITE_SIZE = 35;
@@ -54,6 +63,7 @@ class GameTimer extends AnimationTimer{
 	public final static int START_MAP_HEIGHT = 50;
 	public final static int END_MAP_WIDTH = 1141;
 	public final static int END_MAP_HEIGHT = 752;
+	public final static double BULLET_SPEED = 3;
 
 	private final static Image GAME_BG = new Image("images/gameBg.png");	
 	private Image up = new Image("images/tank-up.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
@@ -61,7 +71,8 @@ class GameTimer extends AnimationTimer{
 	private Image down = new Image("images/tank-down.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 	private Image right = new Image("images/tank-right.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 
-	GameTimer(Scene scene, GraphicsContext gc) {
+	GameTimer(Stage stage, Scene scene, GraphicsContext gc) {
+		this.stage = stage;
 		this.gc = gc;
 		this.scene = scene;
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
@@ -78,7 +89,6 @@ class GameTimer extends AnimationTimer{
 		this.change = 1;
 		this.prepareActionHandlers();
 		this.initializeMap();
-		//this.chat.createContent();
 	}
 
 	@Override
@@ -95,6 +105,53 @@ class GameTimer extends AnimationTimer{
 		for (Bullet fire: this.bullet) {
 			this.moveBullet(fire);
 		}
+		this.checkBulletPlayerCollision();
+
+		if (this.player.getIsAlive() == false) {
+			this.stop();
+			this.gameOver();
+		}
+	}
+	
+	private void drawGameOver(GraphicsContext gc) {
+		// Use an AnimationTimer to continuously redraw the background
+		gc.clearRect(0, 0, Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
+
+		// Draw background image
+		Image bg = new Image("images/gameOverScreen.gif", 1500, 800, false, false);
+
+		// Calculate the new offset based on time or player position
+		// For example, you can use time to make it scroll automatically
+		bgOffsetX -= 1; // Adjust the scrolling speed as needed
+		
+		// Draw the background image twice to create the scrolling effect
+		gc.drawImage(bg, bgOffsetX, 0);
+		gc.drawImage(bg, bgOffsetX + bg.getWidth(), 0);
+
+		// If the first image is out of view, reset the offset
+		if (bgOffsetX <= -bg.getWidth()) {
+				bgOffsetX = 0;
+		}
+	}
+
+	private void gameOver() {
+		Canvas canvas = new Canvas(Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT);
+		GraphicsContext gc = canvas.getGraphicsContext2D();
+
+		// Use an AnimationTimer to continuously redraw the background
+		animationTimer = new AnimationTimer() {
+				@Override
+				public void handle(long currentNanoTime) {
+						drawGameOver(gc);
+				}
+		};
+		animationTimer.start();
+		StackPane screen = new StackPane();
+		StackPane.setAlignment(canvas, Pos.CENTER);
+
+		screen.getChildren().addAll(canvas);
+		Scene gameOver = new Scene( screen );
+		this.stage.setScene(gameOver);
 	}
 
 	void initializeMap() {
@@ -359,6 +416,18 @@ class GameTimer extends AnimationTimer{
 		}
 	}
 
+	void checkBulletPlayerCollision() {
+		for (int i = 0; i < this.bullet.size(); i++) {
+			Bullet bullet = this.bullet.get(i);
+			if (this.player.collidesWith(bullet)) {
+				this.bullet.remove(i);
+				this.player.setHealth();
+				this.player.setIsAlive();
+				break;
+			}
+		}
+	}
+
 	private void prepareActionHandlers() {	// method for the player controls
 			Duration firingInterval = Duration.millis(500);
 			Timeline firing = new Timeline(
@@ -450,23 +519,23 @@ class GameTimer extends AnimationTimer{
 				if (currentFacing == "up") {
 					fire.setDirection(currentFacing);
 					fire.setVisible(true);
-					fire.setXPos(this.player.getXPos()+17);
-					fire.setYPos(this.player.getYPos()-10);
+					fire.setXPos(this.player.getXPos()+GameTimer.PLAYER_SIZE/2-1);
+					fire.setYPos(this.player.getYPos()-5);
 				} else if (currentFacing == "down") {
 					fire.setDirection(currentFacing);
 					fire.setVisible(true);
-					fire.setXPos(this.player.getXPos()+18);
-					fire.setYPos(this.player.getYPos()+GameTimer.PLAYER_SIZE);
+					fire.setXPos(this.player.getXPos()+GameTimer.PLAYER_SIZE/2-1);
+					fire.setYPos(this.player.getYPos()+GameTimer.PLAYER_SIZE+2);
 				} else if (currentFacing == "left") {
 					fire.setDirection(currentFacing);
 					fire.setVisible(true);
-					fire.setXPos(this.player.getXPos()-10);
-					fire.setYPos(this.player.getYPos()+17);
+					fire.setXPos(this.player.getXPos()-5);
+					fire.setYPos(this.player.getYPos()+GameTimer.PLAYER_SIZE/2-1);
 				} else if (currentFacing == "right") {
 					fire.setDirection(currentFacing);
 					fire.setVisible(true);
-					fire.setXPos(this.player.getXPos()+GameTimer.PLAYER_SIZE);
-					fire.setYPos(this.player.getYPos()+17);
+					fire.setXPos(this.player.getXPos()+GameTimer.PLAYER_SIZE+2);
+					fire.setYPos(this.player.getYPos()+GameTimer.PLAYER_SIZE/2-1);
 				}
 				this.bullet.add(fire);
 				GameTimer.fireBullet = false;
@@ -478,25 +547,25 @@ class GameTimer extends AnimationTimer{
 	private void moveBullet(Bullet fire) {
 		if (fire.getDirection() == "up") {
 			if (fire.getYPos() > GameTimer.START_MAP_HEIGHT) {
-				fire.setYPos(fire.getYPos()-5);
+				fire.setYPos(fire.getYPos()-GameTimer.BULLET_SPEED);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "down") {
-			if (fire.getYPos() < GameTimer.END_MAP_HEIGHT-10) {
-				fire.setYPos(fire.getYPos()+5);
+			if (fire.getYPos() < GameTimer.END_MAP_HEIGHT-GameTimer.BULLET_SPEED*2) {
+				fire.setYPos(fire.getYPos()+GameTimer.BULLET_SPEED);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "left") {
 			if (fire.getXPos() > GameTimer.START_MAP_WIDTH) {
-				fire.setXPos(fire.getXPos()-5);
+				fire.setXPos(fire.getXPos()-GameTimer.BULLET_SPEED);
 			} else {
 				fire.setVisible(false);
 			}
 		} else if (fire.getDirection() == "right") {
-			if (fire.getXPos() < GameTimer.END_MAP_WIDTH-10) {
-				fire.setXPos(fire.getXPos()+5);
+			if (fire.getXPos() < GameTimer.END_MAP_WIDTH-GameTimer.BULLET_SPEED*2) {
+				fire.setXPos(fire.getXPos()+GameTimer.BULLET_SPEED);
 			} else {
 				fire.setVisible(false);
 			}

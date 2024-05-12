@@ -21,6 +21,8 @@ class Player {
 	private double fireRate;
 	private double lastBulletFired;
 	private double speed;
+	private double health;
+	private boolean isAlive;
 	private Image player = new Image("images/tank-up.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 	private final static double INITIAL_X = 55;
 	private final static double INITIAL_Y = 50;
@@ -32,6 +34,8 @@ class Player {
 		this.fireRate = 800;
 		this.lastBulletFired = 0;
 		this.speed = 1;
+		this.health = 3;
+		this.isAlive = true;
 	}
 
 	String getName(){
@@ -82,6 +86,22 @@ class Player {
 		this.speed = newSpeed;
 	}
 
+	double getHealth() {
+		return this.health;
+	}
+
+	void setHealth() {
+		this.health--;
+	}
+
+	boolean getIsAlive() {
+		return this.isAlive;
+	}
+
+	void setIsAlive() {
+		if (this.health == 0) this.isAlive = false;
+	}
+
 	void loadImage(Image newImage) {
 		this.player = newImage;
 	}
@@ -94,7 +114,7 @@ class Player {
 		return new Rectangle2D(this.xPos - this.player.getHeight()/2, this.yPos - this.player.getHeight()/2, this.player.getWidth(), this.player.getHeight());
 	}
 
-	protected boolean collidesWith(Player rect2)	{
+	protected boolean collidesWith(Bullet rect2)	{
 		Rectangle2D rectangle1 = this.getBounds();
 		Rectangle2D rectangle2 = rect2.getBounds();
 

@@ -157,7 +157,7 @@ public class Game {
             stage.setScene( this.gameScene );
 
             GraphicsContext gc = this.canvas.getGraphicsContext2D();	// we will pass this gc to be able to draw on this Game's canvas
-            GameTimer gameTimer = new GameTimer(this.gameScene, gc);
+            GameTimer gameTimer = new GameTimer(stage, this.gameScene, gc);
             gameTimer.start();			// this internally calls the handle() method of our GameTimer   
         }
 	}
