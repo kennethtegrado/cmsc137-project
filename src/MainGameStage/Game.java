@@ -35,6 +35,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+//for audio
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.io.File;
+
 public class Game {
 	private Stage stage;
 	private Scene splashScene;		// the splash scene
@@ -60,7 +65,17 @@ public class Game {
 
         this.root.getChildren().addAll(this.canvas, chatBox);
         this.gameScene = new Scene( this.root );
+
+        playStartSound();//play audio
 	}
+    
+    //play audio
+    private void playStartSound() {
+        String audioFilePath = "start.mp3"; 
+        Media sound = new Media(new File(audioFilePath).toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
+    }
 
 	public void setStage(Stage stage) {
 		this.stage = stage;
@@ -139,12 +154,26 @@ public class Game {
         b1.setPrefSize(220, 70);
         b1.setGraphic(newGameView);
 
-        vbox.getChildren().addAll(b1);
+        //added b2
+        Button b2 = new Button();
+        b2.setStyle("-fx-background-color: black");
+        b2.setPrefSize(220, 70);
+        b2.setGraphic(new ImageView(newGame)); //same image as b1
+        //vbox.getChildren().addAll(b1);
+        vbox.getChildren().addAll(b1, b2);
 
         b1.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 setGame(stage);		// changes the scene into the game scene
+            }
+        });
+
+        b2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                // Add action for b2
+                System.out.println("Button 2 clicked!");
             }
         });
 
