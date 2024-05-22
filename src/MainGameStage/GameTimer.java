@@ -27,6 +27,12 @@ import javafx.scene.canvas.GraphicsContext;
 import java.util.ArrayList;
 //import java.util.Random;
 
+
+//for randomizing stage elements
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 class GameTimer extends AnimationTimer{
 	private GraphicsContext gc;
 	private Player player;
@@ -100,46 +106,85 @@ class GameTimer extends AnimationTimer{
 	void initializeMap() {
 		boolean isAlternateX = true;
 		boolean isAlternateY = true;
-		int a = 0;
-		for (int i=GameTimer.START_MAP_WIDTH; i+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_WIDTH; i = i + GameTimer.SPRITE_SIZE) {
-			if (i == GameTimer.START_MAP_WIDTH || i+GameTimer.SPRITE_SIZE*2 > GameTimer.END_MAP_WIDTH) {
-				for (int j=GameTimer.START_MAP_HEIGHT; j+GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
-					if (j == GameTimer.START_MAP_HEIGHT || j+GameTimer.SPRITE_SIZE*2 > GameTimer.END_MAP_HEIGHT) {
+		Random random = new Random(); //random number
+		Set<String> occupiedPositions = new HashSet<>(); //hashset for occupied positions so no blocks intersect
+		
+		for (int i = GameTimer.START_MAP_WIDTH; i + GameTimer.SPRITE_SIZE < GameTimer.END_MAP_WIDTH; i += GameTimer.SPRITE_SIZE) {
+			if (i == GameTimer.START_MAP_WIDTH || i + GameTimer.SPRITE_SIZE * 2 > GameTimer.END_MAP_WIDTH) {
+				for (int j = GameTimer.START_MAP_HEIGHT; j + GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j += GameTimer.SPRITE_SIZE) {
+					if (j == GameTimer.START_MAP_HEIGHT || j + GameTimer.SPRITE_SIZE * 2 > GameTimer.END_MAP_HEIGHT) {
 						Bush newBush = new Bush(i, j);
 						this.bush.add(newBush);
+						occupiedPositions.add(i + "," + j);
 					} else {
-						Steel newSteel = new Steel(i, j);
-						this.steel.add(newSteel);
+						//randomize object
+						int objectType = random.nextInt(4); //select object type
+						String position = i + "," + j;	//position
+						if (!occupiedPositions.contains(position)) {
+							switch (objectType) {
+								case 0:
+									Water newWater = new Water(i, j);
+									this.water.add(newWater);
+									break;
+								case 1:
+									Wall newWall = new Wall(i, j);
+									this.wall.add(newWall);
+									break;
+								case 2:
+									Metal newMetal = new Metal(i, j);
+									this.metal.add(newMetal);
+									break;
+								case 3:
+									Steel newSteel = new Steel(i, j);
+									this.steel.add(newSteel);
+									break;
+							}
+							occupiedPositions.add(position);//position is now occupied
+						}
 					}
 				}
-				continue;
+				continue; //move to next iteration
 			}
-			if (isAlternateX) {
-				for (int j=GameTimer.START_MAP_HEIGHT+GameTimer.SPRITE_SIZE; j+GameTimer.SPRITE_SIZE*2 < GameTimer.END_MAP_HEIGHT; j = j + GameTimer.SPRITE_SIZE) {
-					if (isAlternateY) {
-						if (a == 0) {
-							Water newWater = new Water(i, j);
-							this.water.add(newWater);
-							a = 1;
-						} else if (a == 1) {
-							Wall newWall = new Wall(i, j);
-							this.wall.add(newWall);
-							a = 2;
-						} else if (a == 2) {
-							Metal newMetal = new Metal(i, j);
-							this.metal.add(newMetal);
-							a = 0; 
+			
+			if (isAlternateX) { //if along x - axis
+				for (int j = GameTimer.START_MAP_HEIGHT + GameTimer.SPRITE_SIZE; j + GameTimer.SPRITE_SIZE * 2 < GameTimer.END_MAP_HEIGHT; j += GameTimer.SPRITE_SIZE) {
+					if (isAlternateY) { //alternating along y-axis
+						int objectType = random.nextInt(4);  //select object type
+						String position = i + "," + j; //create position
+						if (!occupiedPositions.contains(position)) { //check if position is occupied
+							switch (objectType) {
+								case 0:
+									Water newWater = new Water(i, j);
+									this.water.add(newWater);
+									break;
+								case 1:
+									Wall newWall = new Wall(i, j);
+									this.wall.add(newWall);
+									break;
+								case 2:
+									Metal newMetal = new Metal(i, j);
+									this.metal.add(newMetal);
+									break;
+								case 3:
+									Steel newSteel = new Steel(i, j);
+									this.steel.add(newSteel);
+									break;
+							}
+							occupiedPositions.add(position); //mark position as occupied
 						}
 					}
 					isAlternateY = !isAlternateY;
 				}
 			}
-
+			//create buish object
 			Bush newBush1 = new Bush(i, 715);
 			this.bush.add(newBush1);
-
+			occupiedPositions.add(i + ",715");
+	
 			Bush newBush2 = new Bush(i, GameTimer.START_MAP_HEIGHT);
 			this.bush.add(newBush2);
+			occupiedPositions.add(i + "," + GameTimer.START_MAP_HEIGHT);
+			
 			isAlternateX = !isAlternateX;
 		}
 	}
