@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 
 public class ChatApp extends Application {
 
-    private boolean isServer = false;
+    private boolean isServer = true;
 
     private TextArea messages = new TextArea();
     private TextField input = new TextField();

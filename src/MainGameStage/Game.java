@@ -24,6 +24,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -44,6 +45,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import java.io.File;
+
 
 public class Game {
 	private Stage stage;
@@ -63,12 +68,13 @@ public class Game {
     
 
 	public Game(){
+        
 		this.canvas = new Canvas( Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT );
         this.chat = new ChatApp();
         this.root = new StackPane();
         VBox chatBox = chat.createContent();
         chatBox.setPadding(new Insets(0, 64, 0, 64));
-
+        playStartSound();
         StackPane.setAlignment(this.canvas, Pos.CENTER);
         StackPane.setAlignment(chatBox, Pos.BOTTOM_RIGHT);
 
@@ -86,6 +92,25 @@ public class Game {
         stage.setResizable(false);
 		stage.show();
 	}
+
+    private void playStartSound() {
+        Platform.runLater(() -> {
+            try {
+                String audioFilePath = "C:\\Users\\Quim\\Desktop\\cmsc137-project\\src\\images\\start.mp3";
+                File audioFile = new File(audioFilePath);
+                if (audioFile.exists()) {
+                    Media sound = new Media(audioFile.toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                    mediaPlayer.play();
+                } else {
+                    System.err.println("Audio file not found: " + audioFilePath);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+    
 
 	private void initSplash(Stage stage) {
 		StackPane root = new StackPane();
@@ -147,7 +172,7 @@ public class Game {
         newGameView.setFitWidth(200);
         newGameView.setPreserveRatio(true);
 
-        // if (this.chat.getIsServer() == true) {
+        //if (this.chat.getIsServer() == true) {
             Button b1 = new Button();
 
             b1.setStyle("-fx-background-color: black");
@@ -159,11 +184,11 @@ public class Game {
             b1.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent e) {
-                    //if (chat.getPlayers() == 2) {
+                    // if (chat.getPlayers() == 4) {
                         setGame(stage);		// changes the scene into the game scene
-                    // } else {
-                    //     System.out.print("ERROR: Insufficient number of players.\n");
-                    // }
+                //     } else {
+                //         System.out.print("ERROR: Insufficient number of players.\n");
+                //     }
                 }
             });
         // } else {
