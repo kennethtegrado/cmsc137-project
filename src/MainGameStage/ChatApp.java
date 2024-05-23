@@ -102,7 +102,7 @@ public class ChatApp extends Application {
     }
 
     private Server createServer() {
-        return new Server(55555, data -> {
+        return new Server(33000, data -> {
             DataPacket packet = (DataPacket) data;
             byte[] original = new Encryptor().dec(packet.getRawBytes());
 
@@ -112,8 +112,16 @@ public class ChatApp extends Application {
         });
     }
 
+    public boolean getIsServer() {
+        return this.isServer;
+    }
+
+    public int getPlayers() {
+        return connection.players();
+    }
+
     private Client createClient() {
-        return new Client("127.0.0.1", 55555, data -> {
+        return new Client("127.0.0.1", 33000, data -> {
             DataPacket packet = (DataPacket) data;
             byte[] original = new Encryptor().dec(packet.getRawBytes());
 

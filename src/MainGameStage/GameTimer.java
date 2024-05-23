@@ -36,6 +36,7 @@ import java.util.ArrayList;
 class GameTimer extends AnimationTimer{
 	private GraphicsContext gc;
 	private Player player;
+	private Player enemy;
 	private ArrayList<Bullet> bullet;
 	private ArrayList<Wall> wall;
 	private ArrayList<Bush> bush;
@@ -71,30 +72,44 @@ class GameTimer extends AnimationTimer{
 	private Image down = new Image("images/tank-down.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 	private Image right = new Image("images/tank-right.png", GameTimer.PLAYER_SIZE, GameTimer.PLAYER_SIZE, false, false);
 
-	GameTimer(Stage stage, Scene scene, GraphicsContext gc) {
+	GameTimer(Stage stage, Scene scene, GraphicsContext gc, ChatApp chat) {
 		this.stage = stage;
 		this.gc = gc;
 		this.scene = scene;
+		this.chat = chat;
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
 		this.scene.setFill(Color.BLACK);
-		this.player = new Player("Tank");
 		this.bullet = new ArrayList<Bullet>();
 		this.wall = new ArrayList<Wall>();
 		this.bush = new ArrayList<Bush>();
 		this.water = new ArrayList<Water>();
 		this.metal = new ArrayList<Metal>();
 		this.steel = new ArrayList<Steel>();
-		this.chat = new ChatApp();
 		this.currentFacing = "up";
 		this.change = 1;
 		this.prepareActionHandlers();
-		this.initializeMap();
+		if (chat.getIsServer()) {
+			this.player = new Player("Tank");
+			this.enemy = new Player("Enemy");
+		} else {
+			this.player = new Player("Enemy");
+			this.enemy = new Player("Tank");
+		}
+		//this.initializeMap();
 	}
 
 	@Override
 	public void handle(long currentNanoTime) {
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
-		this.player.render(this.gc);
+		if (chat.getIsServer()) {
+			this.player.render(this.gc);
+			this.enemy.setXPos(200);
+			this.enemy.render(this.gc);
+		} else {
+			this.enemy.render(this.gc);
+			this.player.setXPos(200);
+			this.player.render(this.gc);
+		}
 
 		for (Steel steel: this.steel) {
 			steel.render(this.gc);

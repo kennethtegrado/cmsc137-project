@@ -17,6 +17,12 @@
 
 package MainGameStage;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,12 +33,16 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class Game {
@@ -40,9 +50,13 @@ public class Game {
 	private Scene splashScene;		// the splash scene
 	private Scene gameScene;		// the game scene
 	private StackPane root;
+    private ChatApp chat;
 	private Canvas canvas;			// the canvas where the animation happens
     private double bgOffsetX = 0; // Initial X offset for the background image
     private AnimationTimer animationTimer; // Declare AnimationTimer as a class member
+    private ServerSocket ss;
+    private int numPlayers;
+    private int maxPlayers;
 
 	public final static int WINDOW_WIDTH = 1500;
 	public final static int WINDOW_HEIGHT = 800;
@@ -50,7 +64,7 @@ public class Game {
 
 	public Game(){
 		this.canvas = new Canvas( Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT );
-        ChatApp chat = new ChatApp();
+        this.chat = new ChatApp();
         this.root = new StackPane();
         VBox chatBox = chat.createContent();
         chatBox.setPadding(new Insets(0, 64, 0, 64));
@@ -133,20 +147,33 @@ public class Game {
         newGameView.setFitWidth(200);
         newGameView.setPreserveRatio(true);
 
-        Button b1 = new Button();
+        // if (this.chat.getIsServer() == true) {
+            Button b1 = new Button();
 
-        b1.setStyle("-fx-background-color: black");
-        b1.setPrefSize(220, 70);
-        b1.setGraphic(newGameView);
+            b1.setStyle("-fx-background-color: black");
+            b1.setPrefSize(220, 70);
+            b1.setGraphic(newGameView);
 
-        vbox.getChildren().addAll(b1);
+            vbox.getChildren().addAll(b1);
 
-        b1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                setGame(stage);		// changes the scene into the game scene
-            }
-        });
+            b1.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    //if (chat.getPlayers() == 2) {
+                        setGame(stage);		// changes the scene into the game scene
+                    // } else {
+                    //     System.out.print("ERROR: Insufficient number of players.\n");
+                    // }
+                }
+            });
+        // } else {
+        //     Label infoLabel = new Label("Waiting for players...");
+        //     infoLabel.setFont(Font.font("Arial", FontWeight.BOLD, 50));
+        //     infoLabel.setTextFill(Color.WHITE);
+        //     vbox.getChildren().addAll(infoLabel);
+
+        // }
+        
 
         return vbox;
     }
@@ -157,7 +184,7 @@ public class Game {
             stage.setScene( this.gameScene );
 
             GraphicsContext gc = this.canvas.getGraphicsContext2D();	// we will pass this gc to be able to draw on this Game's canvas
-            GameTimer gameTimer = new GameTimer(stage, this.gameScene, gc);
+            GameTimer gameTimer = new GameTimer(stage, this.gameScene, gc, this.chat);
             gameTimer.start();			// this internally calls the handle() method of our GameTimer   
         }
 	}

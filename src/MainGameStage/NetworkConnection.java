@@ -10,20 +10,24 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public abstract class NetworkConnection {
+    private int numPlayers = 1;
+    private int maxPlayers = 2;
     private ArrayList<ConnectionThread> connectionThreads = new ArrayList<ConnectionThread>();
     private Consumer<Serializable> onReceiveCallback;
 
     public NetworkConnection(Consumer<Serializable> onReceiveCallback) {
         this.onReceiveCallback = onReceiveCallback;
     }
-
+    
     public void startServerConnection() throws Exception {
         new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(getPort())) {
-                while (true) {
+                System.out.println("Waiting for connection...");
+                while (numPlayers != maxPlayers) {
                     Socket client = serverSocket.accept();
                     ConnectionThread connectionThread = new ConnectionThread(client);
                     connectionThreads.add(connectionThread);
+                    numPlayers++;
                     connectionThread.start();
                 }
             } catch (IOException e) {
@@ -45,6 +49,10 @@ public abstract class NetworkConnection {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    public int players() {
+        return this.numPlayers;
     }
 
     public void send(Serializable data) throws Exception {
@@ -84,7 +92,7 @@ public abstract class NetworkConnection {
         @Override
         public void run() {
             if (isServer()) {
-                System.out.println(true);
+                System.out.println("Player " + numPlayers + " joined the game.");
             }
             try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
