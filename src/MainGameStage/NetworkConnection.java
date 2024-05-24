@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 public abstract class NetworkConnection {
     private int numPlayers = 1;
-    private int maxPlayers = 2;
+    private int maxPlayers = 4;
     private ArrayList<ConnectionThread> connectionThreads = new ArrayList<ConnectionThread>();
     private Consumer<Serializable> onReceiveCallback;
 

@@ -36,7 +36,6 @@ import java.util.ArrayList;
 class GameTimer extends AnimationTimer{
 	private GraphicsContext gc;
 	private Player player;
-	private Player enemy;
 	private ArrayList<Bullet> bullet;
 	private ArrayList<Wall> wall;
 	private ArrayList<Bush> bush;
@@ -88,28 +87,14 @@ class GameTimer extends AnimationTimer{
 		this.currentFacing = "up";
 		this.change = 1;
 		this.prepareActionHandlers();
-		if (chat.getIsServer()) {
-			this.player = new Player("Tank");
-			this.enemy = new Player("Enemy");
-		} else {
-			this.player = new Player("Enemy");
-			this.enemy = new Player("Tank");
-		}
-		//this.initializeMap();
+		this.player = new Player("Tank");
+		this.initializeMap();
 	}
 
 	@Override
 	public void handle(long currentNanoTime) {
 		this.gc.drawImage(GameTimer.GAME_BG, 0, 0);
-		if (chat.getIsServer()) {
-			this.player.render(this.gc);
-			this.enemy.setXPos(200);
-			this.enemy.render(this.gc);
-		} else {
-			this.enemy.render(this.gc);
-			this.player.setXPos(200);
-			this.player.render(this.gc);
-		}
+		this.player.render(this.gc);
 
 		for (Steel steel: this.steel) {
 			steel.render(this.gc);

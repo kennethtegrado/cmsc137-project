@@ -68,17 +68,13 @@ public class Game {
     
 
 	public Game(){
-        
 		this.canvas = new Canvas( Game.WINDOW_WIDTH, Game.WINDOW_HEIGHT );
         this.chat = new ChatApp();
         this.root = new StackPane();
-        VBox chatBox = chat.createContent();
-        chatBox.setPadding(new Insets(0, 64, 0, 64));
         playStartSound();
         StackPane.setAlignment(this.canvas, Pos.CENTER);
-        StackPane.setAlignment(chatBox, Pos.BOTTOM_RIGHT);
 
-        this.root.getChildren().addAll(this.canvas, chatBox);
+        this.root.getChildren().addAll(this.canvas);
         this.gameScene = new Scene( this.root );
 	}
 
@@ -157,47 +153,102 @@ public class Game {
     }
 
     private VBox createVBox() {
-        Image newGame = new Image("images/new.png");
+        Image newGame = new Image("images/create.png");
         ImageView title = new ImageView("images/logo.png");
         ImageView newGameView = new ImageView(newGame);
+
+        ImageView joinGameView = new ImageView("images/join.png");
+        ImageView startGameView = new ImageView("images/new.png");
 
     	VBox vbox = new VBox(title);
         vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(120));
-        vbox.setSpacing(120);
+        vbox.setSpacing(40);
 
         title.setFitWidth(600);
         title.setPreserveRatio(true);
         newGameView.setFitHeight(70);
         newGameView.setFitWidth(200);
         newGameView.setPreserveRatio(true);
+        startGameView.setFitHeight(70);
+        startGameView.setFitWidth(200);
+        startGameView.setPreserveRatio(true);
+        joinGameView.setFitHeight(70);
+        joinGameView.setFitWidth(200);
+        joinGameView.setPreserveRatio(true);
 
         //if (this.chat.getIsServer() == true) {
             Button b1 = new Button();
 
-            b1.setStyle("-fx-background-color: black");
+            b1.setStyle("-fx-background-color: blue");
             b1.setPrefSize(220, 70);
             b1.setGraphic(newGameView);
 
-            vbox.getChildren().addAll(b1);
+            Button b2 = new Button();
+
+            b2.setStyle("-fx-background-color: blue");
+            b2.setPrefSize(220, 70);
+            b2.setGraphic(joinGameView);
+
+            Button b3 = new Button();
+
+            b3.setStyle("-fx-background-color: blue");
+            b3.setPrefSize(220, 70);
+            b3.setGraphic(startGameView);
+
+            vbox.getChildren().addAll(b1, b2);
 
             b1.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent e) {
                     // if (chat.getPlayers() == 4) {
-                        setGame(stage);		// changes the scene into the game scene
-                //     } else {
-                //         System.out.print("ERROR: Insufficient number of players.\n");
-                //     }
+                        chat.setIsServer(true);
+                        chat.createContent();
+                        VBox chatBox = chat.createContent();
+                        chatBox.setPadding(new Insets(0, 64, 0, 64));
+                        StackPane.setAlignment(chatBox, Pos.BOTTOM_RIGHT);
+                        root.getChildren().add(chatBox);
+                        b1.setVisible(false);
+                        b2.setVisible(false);
+                        vbox.getChildren().clear();
+                        vbox.getChildren().addAll(title, b3);
+                        vbox.setSpacing(155);
+                        //setGame(stage);		// changes the scene into the game scene
+                //     
                 }
             });
-        // } else {
-        //     Label infoLabel = new Label("Waiting for players...");
-        //     infoLabel.setFont(Font.font("Arial", FontWeight.BOLD, 50));
-        //     infoLabel.setTextFill(Color.WHITE);
-        //     vbox.getChildren().addAll(infoLabel);
+            
+            b2.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    chat.setIsServer(false);
+                    chat.createContent();
+                    VBox chatBox = chat.createContent();
+                    chatBox.setPadding(new Insets(0, 64, 0, 64));
+                    StackPane.setAlignment(chatBox, Pos.BOTTOM_RIGHT);
+                    root.getChildren().add(chatBox);
+                    b1.setVisible(false);
+                    b2.setVisible(false);
 
-        // }
+                    Label infoLabel = new Label("Waiting for players...");
+                    infoLabel.setFont(Font.font("Arial", FontWeight.BOLD, 50));
+                    infoLabel.setTextFill(Color.WHITE);
+                    vbox.getChildren().clear();
+                    vbox.getChildren().addAll(title, infoLabel);
+                    vbox.setSpacing(172);
+                }
+            });
+
+            b3.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent e) {
+                    if (chat.getPlayers() == 4) {
+                        setGame(stage);
+                    } else {
+                        System.out.print("ERROR: Insufficient number of players.\n");
+                    }
+                }
+            });
         
 
         return vbox;

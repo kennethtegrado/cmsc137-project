@@ -15,12 +15,16 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class ChatApp extends Application {
-
-    private boolean isServer = true;
+    private boolean isServer;
 
     private TextArea messages = new TextArea();
     private TextField input = new TextField();
-    private NetworkConnection connection = isServer ? createServer() : createClient();
+    private NetworkConnection connection;
+
+    public void setIsServer(boolean isServer) {
+        this.isServer = isServer;
+        connection = isServer ? createServer() : createClient();
+    }
 
     public VBox createContent() {
         try {
@@ -102,7 +106,7 @@ public class ChatApp extends Application {
     }
 
     private Server createServer() {
-        return new Server(33000, data -> {
+        return new Server(3000, data -> {
             DataPacket packet = (DataPacket) data;
             byte[] original = new Encryptor().dec(packet.getRawBytes());
 
@@ -121,7 +125,7 @@ public class ChatApp extends Application {
     }
 
     private Client createClient() {
-        return new Client("127.0.0.1", 33000, data -> {
+        return new Client("127.0.0.1", 3000, data -> {
             DataPacket packet = (DataPacket) data;
             byte[] original = new Encryptor().dec(packet.getRawBytes());
 
