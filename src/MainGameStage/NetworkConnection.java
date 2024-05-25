@@ -22,7 +22,7 @@ public abstract class NetworkConnection {
     public void startServerConnection() throws Exception {
         new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(getPort())) {
-                System.out.println("Waiting for connection...");
+                System.out.println("Waiting for connection..." + numPlayers);
                 while (numPlayers != maxPlayers) {
                     Socket client = serverSocket.accept();
                     ConnectionThread connectionThread = new ConnectionThread(client);

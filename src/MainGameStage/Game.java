@@ -73,7 +73,7 @@ public class Game {
         this.root = new StackPane();
         playStartSound();
         StackPane.setAlignment(this.canvas, Pos.CENTER);
-
+        System.out.println(chat.getIsServer());
         this.root.getChildren().addAll(this.canvas);
         this.gameScene = new Scene( this.root );
 	}

@@ -1,6 +1,8 @@
 package MainGameStage;
 
-import com.sun.glass.events.KeyEvent;
+import java.net.*;
+import java.io.*;
+import java.util.*;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -24,19 +26,22 @@ public class ChatApp extends Application {
     public void setIsServer(boolean isServer) {
         this.isServer = isServer;
         connection = isServer ? createServer() : createClient();
+
+        if (connection != null) {
+            try {
+                if (isServer) {
+                    connection.startServerConnection();
+                } else {
+                    connection.startClientConnection();
+                }
+            } catch (Exception e) {
+                System.err.println("Error starting connection: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     public VBox createContent() {
-        try {
-            if (isServer) {
-                connection.startServerConnection();
-            } else {
-                connection.startClientConnection();
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         messages.setFont(Font.font(14));
         messages.setPrefHeight(350);
         messages.setWrapText(true);
@@ -106,14 +111,20 @@ public class ChatApp extends Application {
     }
 
     private Server createServer() {
-        return new Server(3000, data -> {
-            DataPacket packet = (DataPacket) data;
-            byte[] original = new Encryptor().dec(packet.getRawBytes());
+        try {
+            return new Server(3000, data -> {
+                DataPacket packet = (DataPacket) data;
+                byte[] original = new Encryptor().dec(packet.getRawBytes());
 
-            Platform.runLater(() -> {
-                messages.appendText(new String(original) + "\n");
+                Platform.runLater(() -> {
+                    messages.appendText(new String(original) + "\n");
+                });
             });
-        });
+        } catch (Exception e) {
+            System.err.println("Error creating server: " + e.getMessage());
+            e.printStackTrace();
+            return null; // Handle this situation appropriately
+        }
     }
 
     public boolean getIsServer() {
@@ -125,13 +136,20 @@ public class ChatApp extends Application {
     }
 
     private Client createClient() {
-        return new Client("127.0.0.1", 3000, data -> {
-            DataPacket packet = (DataPacket) data;
-            byte[] original = new Encryptor().dec(packet.getRawBytes());
-
-            Platform.runLater(() -> {
-                messages.appendText(new String(original) + "\n");
+        try {
+            InetAddress localhost = InetAddress.getLocalHost();
+            return new Client((localhost.getHostAddress()).trim(), 3000, data -> {
+                DataPacket packet = (DataPacket) data;
+                byte[] original = new Encryptor().dec(packet.getRawBytes());
+    
+                Platform.runLater(() -> {
+                    messages.appendText(new String(original) + "\n");
+                });
             });
-        });
+        } catch (UnknownHostException e) {
+            System.err.println("Unable to determine local host IP address.");
+            e.printStackTrace();
+            return null; // Or handle this situation appropriately
+        }
     }
 }
