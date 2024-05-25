@@ -92,7 +92,7 @@ public class Game {
     private void playStartSound() {
         Platform.runLater(() -> {
             try {
-                String audioFilePath = "C:\\Users\\Quim\\Desktop\\cmsc137-project\\src\\images\\start.mp3";
+                String audioFilePath = "start.mp3";
                 File audioFile = new File(audioFilePath);
                 if (audioFile.exists()) {
                     Media sound = new Media(audioFile.toURI().toString());
