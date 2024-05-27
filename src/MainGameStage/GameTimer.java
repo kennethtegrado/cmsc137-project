@@ -104,90 +104,84 @@ class GameTimer extends AnimationTimer{
 	}
 
 	void initializeMap() {
-		boolean isAlternateX = true;
-		boolean isAlternateY = true;
-		Random random = new Random(); //random number
-		Set<String> occupiedPositions = new HashSet<>(); //hashset for occupied positions so no blocks intersect
-		
-		for (int i = GameTimer.START_MAP_WIDTH; i + GameTimer.SPRITE_SIZE < GameTimer.END_MAP_WIDTH; i += GameTimer.SPRITE_SIZE) {
-			if (i == GameTimer.START_MAP_WIDTH || i + GameTimer.SPRITE_SIZE * 2 > GameTimer.END_MAP_WIDTH) {
-				for (int j = GameTimer.START_MAP_HEIGHT; j + GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j += GameTimer.SPRITE_SIZE) {
-					if (j == GameTimer.START_MAP_HEIGHT || j + GameTimer.SPRITE_SIZE * 2 > GameTimer.END_MAP_HEIGHT) {
-						Bush newBush = new Bush(i, j);
-						this.bush.add(newBush);
-						occupiedPositions.add(i + "," + j);
-					} else {
-						//randomize object
-						int objectType = random.nextInt(4); //select object type
-						String position = i + "," + j;	//position
-						if (!occupiedPositions.contains(position)) {
-							switch (objectType) {
-								case 0:
-									Water newWater = new Water(i, j);
-									this.water.add(newWater);
-									break;
-								case 1:
-									Wall newWall = new Wall(i, j);
-									this.wall.add(newWall);
-									break;
-								case 2:
-									Metal newMetal = new Metal(i, j);
-									this.metal.add(newMetal);
-									break;
-								case 3:
-									Steel newSteel = new Steel(i, j);
-									this.steel.add(newSteel);
-									break;
-							}
-							occupiedPositions.add(position);//position is now occupied
-						}
-					}
-				}
-				continue; //move to next iteration
-			}
-			
-			if (isAlternateX) { //if along x - axis
-				for (int j = GameTimer.START_MAP_HEIGHT + GameTimer.SPRITE_SIZE; j + GameTimer.SPRITE_SIZE * 2 < GameTimer.END_MAP_HEIGHT; j += GameTimer.SPRITE_SIZE) {
-					if (isAlternateY) { //alternating along y-axis
-						int objectType = random.nextInt(4);  //select object type
-						String position = i + "," + j; //create position
-						if (!occupiedPositions.contains(position)) { //check if position is occupied
-							switch (objectType) {
-								case 0:
-									Water newWater = new Water(i, j);
-									this.water.add(newWater);
-									break;
-								case 1:
-									Wall newWall = new Wall(i, j);
-									this.wall.add(newWall);
-									break;
-								case 2:
-									Metal newMetal = new Metal(i, j);
-									this.metal.add(newMetal);
-									break;
-								case 3:
-									Steel newSteel = new Steel(i, j);
-									this.steel.add(newSteel);
-									break;
-							}
-							occupiedPositions.add(position); //mark position as occupied
-						}
-					}
-					isAlternateY = !isAlternateY;
-				}
-			}
-			//create buish object
-			Bush newBush1 = new Bush(i, 715);
-			this.bush.add(newBush1);
-			occupiedPositions.add(i + ",715");
+		Random random = new Random(); 
+		Set<String> occupiedPositions = new HashSet<>(); //occupied positions
 	
-			Bush newBush2 = new Bush(i, GameTimer.START_MAP_HEIGHT);
-			this.bush.add(newBush2);
+		//define number of objects
+		int numberOfObjects = 40; //adjust if needed 
+	
+		//place bush around the borders
+		for (int i = GameTimer.START_MAP_WIDTH; i + GameTimer.SPRITE_SIZE < GameTimer.END_MAP_WIDTH; i += GameTimer.SPRITE_SIZE) {
+			Bush newBushTop = new Bush(i, GameTimer.START_MAP_HEIGHT);
+			this.bush.add(newBushTop);
 			occupiedPositions.add(i + "," + GameTimer.START_MAP_HEIGHT);
-			
-			isAlternateX = !isAlternateX;
+	
+			Bush newBushBottom = new Bush(i, GameTimer.END_MAP_HEIGHT - GameTimer.SPRITE_SIZE);
+			this.bush.add(newBushBottom);
+			occupiedPositions.add(i + "," + (GameTimer.END_MAP_HEIGHT - GameTimer.SPRITE_SIZE));
+		}
+		//place bush around the borders
+		for (int j = GameTimer.START_MAP_HEIGHT; j + GameTimer.SPRITE_SIZE < GameTimer.END_MAP_HEIGHT; j += GameTimer.SPRITE_SIZE) {
+			Bush newBushLeft = new Bush(GameTimer.START_MAP_WIDTH, j);
+			this.bush.add(newBushLeft);
+			occupiedPositions.add(GameTimer.START_MAP_WIDTH + "," + j);
+	
+			Bush newBushRight = new Bush(GameTimer.END_MAP_WIDTH - GameTimer.SPRITE_SIZE, j);
+			this.bush.add(newBushRight);
+			occupiedPositions.add((GameTimer.END_MAP_WIDTH - GameTimer.SPRITE_SIZE) + "," + j);
+		}
+	
+		//after placing the bushes, place the random objects
+		for (int n = 0; n < numberOfObjects; n++) {
+			//initialize i and j that are within map bounds
+			int i = random.nextInt((GameTimer.END_MAP_WIDTH - GameTimer.SPRITE_SIZE) - GameTimer.START_MAP_WIDTH) + GameTimer.START_MAP_WIDTH;
+			int j = random.nextInt((GameTimer.END_MAP_HEIGHT - GameTimer.SPRITE_SIZE) - GameTimer.START_MAP_HEIGHT) + GameTimer.START_MAP_HEIGHT;
+	
+			//align with the grid
+			i = (i / GameTimer.SPRITE_SIZE) * GameTimer.SPRITE_SIZE;
+			j = (j / GameTimer.SPRITE_SIZE) * GameTimer.SPRITE_SIZE;
+	
+			//if the position is already occupied, remove it and loop again
+			String position = i + "," + j;
+			if (occupiedPositions.contains(position)) {
+				n--; //get new position
+				continue; // go back to main loop
+			}
+	
+			//add random object using function
+			addObject(random, occupiedPositions, i, j);
+		}
+	
+	
+	}
+	
+	private void addObject(Random random, Set<String> occupiedPositions, int i, int j) {
+		int objectType = random.nextInt(4); //select object type
+		String position = i + "," + j; //position
+	
+		if (!occupiedPositions.contains(position)) { //check if not occupied
+			switch (objectType) {
+				case 0:
+					Water newWater = new Water(i, j);
+					this.water.add(newWater);
+					break;
+				case 1:
+					Wall newWall = new Wall(i, j);
+					this.wall.add(newWall);
+					break;
+				case 2:
+					Metal newMetal = new Metal(i, j);
+					this.metal.add(newMetal);
+					break;
+				case 3:
+					Steel newSteel = new Steel(i, j);
+					this.steel.add(newSteel);
+					break;
+			}
+			occupiedPositions.add(position); //add position as occupied
 		}
 	}
+	
 
 	void renderMap(long currentNanoTime) {
 		for (int i = 0; i < this.wall.size(); i++) {
